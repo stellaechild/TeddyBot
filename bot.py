@@ -34,7 +34,7 @@ async def birthday_check():
                 user = await bot.fetch_user(user_id)
                 if channel:
                     await channel.send(
-                        f"🎂🧸 Happy Birthday {user.mention}!💗 "
+                        f"🎂🧸 Happy Birthday {user.mention}!! 💗 "
                     )
 
         await asyncio.sleep(86400)
