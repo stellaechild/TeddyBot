@@ -54,7 +54,7 @@ special_bday_messages=[
 encouragements = [
     "You're doing amazing 💗",
     "I'm proud of you 🧸",
-    "Don't forget to rest 🌿",
+    "Take it easy today 🌿",
     "You're enough just as you are ✨",
     "Sending you a cozy hug 🤗"
 ]
@@ -141,7 +141,7 @@ async def hug(ctx, member: discord.Member = None):
     if member:
         await ctx.send(f"🧸 {ctx.author.mention} hugs {member.mention}! {msg}")
     else:
-        await ctx.send(f"🧸 {ctx.author.mention} {msg}")
+        await ctx.send(f"🧸 Button is giving you a warm hug, {ctx.author.mention}! {msg}")
 
 keep_alive()
 bot.run(os.getenv("TOKEN"))
