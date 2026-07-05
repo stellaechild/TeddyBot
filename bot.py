@@ -10,6 +10,7 @@ bot = commands.Bot(command_prefix="*", intents=intents)
 from datetime import datetime
 import asyncio
 server_id = int(os.getenv("SERVER_ID"))
+SERVER_NAME = os.getenv("SERVER_NAME")
 raw_birthdays = os.getenv("BIRTHDAYS")
 birthdays = {}
 
@@ -41,13 +42,13 @@ async def birthday_check():
         await asyncio.sleep(86400)
 
 # Cute messages
-special_bday_messages={
+special_bday_messages=[
     "🎉 Wishing you a day filled with love, joy, and all the things that make you happiest! 🧸💖",
     "🎉 May your day be as special and wonderful as you are! 🧸✨",
     "🎉 May your year ahead be filled with laughter, love, and endless adventures! 🧸🌟",
     "🎉 Wishing your day to be as sweet and delightful as you are! 🧸🍰"
 
-}
+]
 
 
 encouragements = [
@@ -58,6 +59,19 @@ encouragements = [
     "Sending you a cozy hug 🤗"
 ]
 
+welcome_messages = [
+    "Glad to have you here! 💖",
+    "Hope you have a great time! 🌟",
+    "Hope you're ready to relax! 🧸",
+    "The cozy vibes are immaculate here! ✨"
+]
+
+gone_messages = [
+    "we’ll miss you 💔",
+    "hope to see you again soon! 🩹",
+    "take care of yourself! 🌿",
+    "your legacy will live on in our hearts 💖"
+]
 # When bot is ready
 @bot.event
 async def on_ready():
@@ -70,14 +84,15 @@ async def on_member_join(member):
     channel = member.guild.system_channel
     if channel:
         msg = random.choice(encouragements)
-        await channel.send(f"🧸 Welcome {member.mention}! {msg}")
+        await channel.send(f"🧸 Welcome to {SERVER_NAME}, {member.mention} !! {msg}")
 
 # When someone leaves
 @bot.event
 async def on_member_remove(member):
     channel = member.guild.system_channel
     if channel:
-        await channel.send(f"🧸 {member.name} left… we’ll miss you 💔")
+        msg = random.choice(gone_messages)
+        await channel.send(f"🧸 {member.name} left… {msg}")
 
 # Command to get encouragement
 @bot.command()
