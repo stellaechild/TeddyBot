@@ -52,7 +52,6 @@ encouragements = [
 async def on_ready():
     print(f"{bot.user} is ready 🧸")
     bot.loop.create_task(birthday_check())
-    @bot.event
 
 # When someone joins
 @bot.event
