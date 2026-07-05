@@ -50,7 +50,7 @@ special_bday_messages=[
 
 ]
 
-adjective = random.choice(["warm", "cozy", "gentle", "soft", "snuggly"])
+adjectives = ["warm", "cozy", "gentle", "soft", "snuggly"]
 
 encouragements = [
     "You're doing amazing 💗",
@@ -142,6 +142,7 @@ async def hug(ctx, member: discord.Member = None):
     if member:
         await ctx.send(f"🧸 {ctx.author.mention} hugs {member.mention}! {msg}")
     else:
+        adjective = random.choice(adjectives)
         await ctx.send(f"🧸 Button is giving you a {adjective} hug, {ctx.author.mention}! {msg}")
 
 keep_alive()
