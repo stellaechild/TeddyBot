@@ -82,6 +82,26 @@ mysteries = [
     "Why do we dream?",
     "What is the sound of one hand clapping?"
 ] 
+
+dreams =[
+    "a world made of candy and chocolate 🍭🍫",
+    "a magical forest filled with talking animals and fairies 🧚‍♂️🦊",
+    "a cozy cabin in the mountains with a warm fireplace and a view of the stars 🏔️✨", 
+    "a beach with crystal clear water and soft sand, where you can relax and listen to the waves 🌊🏖️",
+    "a whimsical carnival with colorful rides, games, and cotton candy 🎡🍿",
+    "an epic adventure through space, exploring new planets and galaxies 🚀🌌",
+    "a peaceful garden filled with blooming flowers and chirping birds 🌸🐦",
+]
+
+
+drinks = [
+    "warm cup of tea 🍵",
+    "refreshing glass of lemonade 🍋",
+    "warm mug of hot chocolate ☕",
+    "fruity smoothie with fresh berries 🍓",
+    "classic cup of coffee ☕",
+]
+
 # When bot is ready
 @bot.event
 async def on_ready():
@@ -123,7 +143,7 @@ def get_bot_mood():
         "playful. Button is going to play some games! Would you like to join her? 🧸",
         "a bit down. Sadness is a normal feeling and it's okay to feel that way sometimes. We can always be here for those we love, though. Would you like to offer her some comfort? 🤍",
         f"thinking. Button is pondering the mysteries of the universe. {mystery} 🤔",
-        "cozy. Button is snuggled up in the sofa, watching her favorite movie. You're invited to join her, the more the merrier! 🛋️ "
+        "cozy. Button is snuggled up in the sofa, watching her favorite movie. You're invited to join her; the more the merrier! 🛋️ "
     ]
     today_mood = random.choice(moods)
 
@@ -144,6 +164,42 @@ async def hug(ctx, member: discord.Member = None):
     else:
         adjective = random.choice(adjectives)
         await ctx.send(f"🧸 Button is giving you a {adjective} hug, {ctx.author.mention}! {msg}")
+
+@bot.command()
+async def goodnight(ctx, member: discord.Member = None):
+    dream = random.choice(dreams)
+    goodnight_messages = [
+        f"Sleep well and dream of {dream}! 🌙🧸",
+        "Sweet dreams! May your night be filled with warmth and comfort! 🌙💖",
+        "Rest well! Tomorrow is a new day full of possibilities! 🌙✨",
+        "Sleep tight! May your dreams be as soft and gentle as a teddy bear hug! 🌙🧸"
+    ]
+    msg = random.choice(goodnight_messages)
+    if member:
+        await ctx.send(f"🌙🧸 {ctx.author.mention} sends you a goodnight, {member.mention}! {msg} 💗")
+    else:
+        await ctx.send(f"🌙🧸 Goodnight {ctx.author.mention}! {msg} 💗")
+
+@bot.command()
+async def goodmorning(ctx, member: discord.Member = None):
+    drink = random.choice(drinks)
+    greetings =[
+        f"Good morning {ctx.author.mention}!",
+        f"Wakey wakey, {ctx.author.mention}!",
+        f"Rise and shine {ctx.author.mention}!"
+    ]
+    greeting = random.choice(greetings)
+    goodmorning_messages = [
+        f"{greeting} Rise and shine, it's a new day full of opportunities! ☀️🧸",
+        f"{greeting} Time to start the day. Get a {drink} and enjoy the sunrise! ☀️💖",
+        f"{greeting} May your day be filled with warmth, joy, and all things wonderful! ☀️✨",
+        f"{greeting} Let's make today amazing together! ☀️🧸"
+    ]
+    msg = random.choice(goodmorning_messages)
+    if member:
+        await ctx.send(f"☀️🧸 {ctx.author.mention} sends you a goodmorning, {member.mention}! {msg} ")
+    else:
+        await ctx.send(f"☀️🧸 {msg} ")
 
 keep_alive()
 bot.run(os.getenv("TOKEN"))
