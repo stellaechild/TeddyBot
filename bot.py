@@ -72,6 +72,16 @@ gone_messages = [
     "take care of yourself! 🌿",
     "your legacy will live on in our hearts 💖"
 ]
+        
+mysteries = [
+    "Why is water wet?",
+    "What is the meaning of life?",
+    "Why do cats purr?",
+    "What is love?",
+    "Why do we dream?",
+    "What is the sound of one hand clapping?"
+]
+
 # When bot is ready
 @bot.event
 async def on_ready():
@@ -93,6 +103,22 @@ async def on_member_remove(member):
     if channel:
         msg = random.choice(gone_messages)
         await channel.send(f"🧸 {member.name} left… {msg}")
+
+
+@bot.command()
+async def mood(ctx):
+    msg = random.choice(mysteries)
+    moods = [
+        "sleepy. Button is taking a nap. She encourages you to rest too...🌙",
+        "calm. Button is going to grab a cup of tea and read a book, you could join her too.🫖",
+        "happy. The world is a wonderful place! Join Button in taking a walk in the park! 🌸",
+        "playful. Button is going to play some games! Would you like to join her? 🧸",
+        "a bit down. Sadness is a normal feeling and it's okay to feel that way sometimes. We can always be here for those we love, though. Would you like to offer her some comfort? 🤍",
+        f"thinking. Button is pondering the mysteries of the universe. {msg} 🤔",
+        "cozy. Button is snuggled up in the sofa, watching her favorite movie. You're invited to join her, the more the merrier! 🛋️ "
+    ]
+
+    await ctx.send(f"🧸 Today, Button feels {random.choice(moods)}")
 
 # Command to get encouragement
 @bot.command()
