@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import random
 import os
+from keep_alive import keep_alive
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
@@ -46,4 +47,5 @@ async def hug(ctx, member: discord.Member = None):
     else:
         await ctx.send(f"🧸 {ctx.author.mention} {msg}")
 
+keep_alive()
 bot.run(os.getenv("TOKEN"))
