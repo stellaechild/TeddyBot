@@ -201,5 +201,16 @@ async def goodmorning(ctx, member: discord.Member = None):
     else:
         await ctx.send(f"☀️🧸 {msg} ")
 
+@bot.command()
+async def commands(ctx):
+    commands_list = [
+        "*mood - Check Button's mood for the day. Refreshes daily 💗",
+        "*hug [@user] - Send a virtual hug to someone or receive one from Button 💗",
+        "*goodmorning [@user] - Send a good morning message to someone or receive one from Button 💗",
+        "*goodnight [@user] - Send a goodnight message to someone or receive one from Button 💗",
+        "*commands - Display this list of commands."
+    ]
+    await ctx.send("🧸 Here are the available commands for Button:\n" + "\n".join(commands_list))
+    
 keep_alive()
 bot.run(os.getenv("TOKEN"))
