@@ -81,7 +81,16 @@ mysteries = [
     "Why do we dream?",
     "What is the sound of one hand clapping?"
 ]
-
+mystery = random.choice(mysteries)
+moods = [
+        "sleepy. Button is taking a nap. She encourages you to rest too...🌙",
+        "calm. Button is going to grab a cup of tea and read a book, you could join her too.🫖",
+        "happy. The world is a wonderful place! Join Button in taking a walk in the park! 🌸",
+        "playful. Button is going to play some games! Would you like to join her? 🧸",
+        "a bit down. Sadness is a normal feeling and it's okay to feel that way sometimes. We can always be here for those we love, though. Would you like to offer her some comfort? 🤍",
+        f"thinking. Button is pondering the mysteries of the universe. {mystery} 🤔",
+        "cozy. Button is snuggled up in the sofa, watching her favorite movie. You're invited to join her, the more the merrier! 🛋️ "
+    ]
 # When bot is ready
 @bot.event
 async def on_ready():
@@ -104,21 +113,25 @@ async def on_member_remove(member):
         msg = random.choice(gone_messages)
         await channel.send(f"🧸 {member.name} left… {msg}")
 
+today_mood_date = None
+today_mood = None
+def get_bot_mood():
+    global today_mood_date, today_mood
+
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    if today_mood_date == today:
+        return today_mood
+
+    today_mood_date = today
+    today_mood = random.choice(moods)
+
+    return today_mood
 
 @bot.command()
 async def mood(ctx):
-    msg = random.choice(mysteries)
-    moods = [
-        "sleepy. Button is taking a nap. She encourages you to rest too...🌙",
-        "calm. Button is going to grab a cup of tea and read a book, you could join her too.🫖",
-        "happy. The world is a wonderful place! Join Button in taking a walk in the park! 🌸",
-        "playful. Button is going to play some games! Would you like to join her? 🧸",
-        "a bit down. Sadness is a normal feeling and it's okay to feel that way sometimes. We can always be here for those we love, though. Would you like to offer her some comfort? 🤍",
-        f"thinking. Button is pondering the mysteries of the universe. {msg} 🤔",
-        "cozy. Button is snuggled up in the sofa, watching her favorite movie. You're invited to join her, the more the merrier! 🛋️ "
-    ]
-
-    await ctx.send(f"🧸 Today, Button feels {random.choice(moods)}")
+    mood = get_bot_mood()   
+    await ctx.send(f"🧸 Today, Button feels {mood}")
 
 # Command to get encouragement
 @bot.command()
