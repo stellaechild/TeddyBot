@@ -23,7 +23,8 @@ if raw_birthdays:
 async def birthday_check():
     await bot.wait_until_ready()
 
-    server = bot.get_channel(server_id)
+    guild = bot.get_guild(server_id)
+    channel = guild.system_channel if guild else None
 
     while not bot.is_closed():
         now = datetime.now()
@@ -31,8 +32,8 @@ async def birthday_check():
         for user_id, (day, month) in birthdays.items():
             if now.day == day and now.month == month:
                 user = await bot.fetch_user(user_id)
-                if server:
-                    await server.send(
+                if channel:
+                    await channel.send(
                         f"🎂🧸 Happy Birthday {user.mention}!💗 "
                     )
 
