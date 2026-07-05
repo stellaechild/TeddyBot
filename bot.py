@@ -7,6 +7,36 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="*", intents=intents)
+from datetime import datetime
+import asyncio
+server_id = int(os.getenv("SERVER_ID"))
+raw_birthdays = os.getenv("BIRTHDAYS")
+birthdays = {}
+
+if raw_birthdays:
+    for entry in raw_birthdays.split(","):
+        user_id, date = entry.split(":")
+        day, month = map(int, date.split("/"))
+        birthdays[int(user_id)] = (day, month)
+
+
+async def birthday_check():
+    await bot.wait_until_ready()
+
+    server = bot.get_channel(server_id)
+
+    while not bot.is_closed():
+        now = datetime.now()
+
+        for user_id, (day, month) in birthdays.items():
+            if now.day == day and now.month == month:
+                user = await bot.fetch_user(user_id)
+                if server:
+                    await server.send(
+                        f"🎂🧸 Happy Birthday {user.mention}!💗 "
+                    )
+
+        await asyncio.sleep(86400)
 
 # Cute messages
 encouragements = [
@@ -21,6 +51,8 @@ encouragements = [
 @bot.event
 async def on_ready():
     print(f"{bot.user} is ready 🧸")
+    bot.loop.create_task(birthday_check())
+    @bot.event
 
 # When someone joins
 @bot.event
