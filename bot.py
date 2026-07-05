@@ -34,12 +34,22 @@ async def birthday_check():
                 user = await bot.fetch_user(user_id)
                 if channel:
                     await channel.send(
-                        f"🎂🧸 Happy Birthday {user.mention}!! 💗 "
+                        msg = random.choice(special_bday_messages)
+                        f"🎂🧸 Happy Birthday {user.mention}!! 💗 {msg} "
                     )
 
         await asyncio.sleep(86400)
 
 # Cute messages
+special_bday_messages={
+    "🎉 Wishing you a day filled with love, joy, and all the things that make you happiest! 🧸💖",
+    "🎉 May your day be as special and wonderful as you are! 🧸✨",
+    "🎉 May your year ahead be filled with laughter, love, and endless adventures! 🧸🌟",
+    "🎉 Wishing your day to be as sweet and delightful as you are! 🧸🍰"
+
+}
+
+
 encouragements = [
     "You're doing amazing 💗",
     "I'm proud of you 🧸",
