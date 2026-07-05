@@ -34,8 +34,8 @@ async def birthday_check():
             if now.day == day and now.month == month:
                 user = await bot.fetch_user(user_id)
                 if channel:
+                    msg = random.choice(special_bday_messages)
                     await channel.send(
-                        msg = random.choice(special_bday_messages)
                         f"🎂🧸 Happy Birthday {user.mention}!! 💗 {msg} "
                     )
 
