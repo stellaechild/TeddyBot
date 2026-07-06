@@ -286,15 +286,15 @@ async def commands(ctx):
         "🧸 **Button's Commands** 🧸\n\n"
 
         "💗 **Cozy & Social**\n"
-        "*hug [@user] - Send a virtual hug\n"
-        "*goodmorning [@user] - Send a good morning message\n"
-        "*goodnight [@user] - Send a goodnight message\n\n"
+        "*hug [@user] - Send a virtual hug to someone or receive one from Button\n"
+        "*goodmorning [@user] - Send a good morning message to someone or receive one from Button\n"
+        "*goodnight [@user] - Send a goodnight message to someone or receive one from Button\n\n"
 
         "🌙 **Daily & Mood**\n"
         "*mood - Check Button's mood for the day\n"
         "*mystery - Discover Button's mystery of the day\n"
-        "*dream - See what Button is dreaming about\n"
-        "*drink - See what Button is drinking\n\n"
+        "*dream - Check what Button is dreaming about\n"
+        "*drink - Learn what kind of beverage Button is drinking\n\n"
 
         "🎂 **Birthdays**\n"
         "*birthday [@user] - Check a birthday\n"
