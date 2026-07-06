@@ -124,18 +124,18 @@ async def on_member_remove(member):
         msg = random.choice(gone_messages)
         await channel.send(f"🧸 {member.name} left… {msg}")
 
-today_mood_date = None
-today_mood = None
+
+today = None
 def get_bot_mood():
-    global today_mood_date, today_mood
+    global today
 
     today = datetime.now().strftime("%Y-%m-%d")
 
-    if today_mood_date == today:
-        return today_mood
+    # Seed random with today's date
+    random.seed(today+"mood")
 
-    today_mood_date = today
     mystery = random.choice(mysteries)
+
     moods = [
         "sleepy. Button is taking a nap. She encourages you to rest too...🌙",
         "calm. Button is going to grab a cup of tea and read a book, you could join her too.🫖",
@@ -145,9 +145,9 @@ def get_bot_mood():
         f"thinking. Button is pondering the mysteries of the universe. {mystery} 🤔",
         "cozy. Button is snuggled up in the sofa, watching her favorite movie. You're invited to join her; the more the merrier! 🛋️ "
     ]
-    today_mood = random.choice(moods)
 
-    return today_mood
+    return random.choice(moods)
+
 
 @bot.command()
 async def mood(ctx):
