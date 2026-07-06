@@ -183,7 +183,8 @@ async def goodnight(ctx, member: discord.Member = None):
 @bot.command()
 async def goodmorning(ctx, member: discord.Member = None):
     drink = random.choice(drinks)
-    greetings =[
+    receiver = member.mention if member else ctx.author.mention
+    greetings = [
         f"Good morning {receiver}!",
         f"Wakey wakey, {receiver}!",
         f"Rise and shine, {receiver}!"
@@ -197,10 +198,8 @@ async def goodmorning(ctx, member: discord.Member = None):
     ]
     msg = random.choice(goodmorning_messages)
     if member:
-        receiver = member.mention
         await ctx.send(f"☀️🧸 {ctx.author.mention} sends you a goodmorning, {member.mention}! {msg} ")
     else:
-        receiver = ctx.author.mention
         await ctx.send(f"☀️🧸 {msg} ")
 
 @bot.command()
