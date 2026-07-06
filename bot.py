@@ -282,22 +282,32 @@ async def goodmorning(ctx, member: discord.Member = None):
 
 @bot.command()
 async def commands(ctx):
-    commands_list = [
-        "*mood - Check Button's mood for the day. Refreshes daily 💗",
-        "*hug [@user] - Send a virtual hug to someone or receive one from Button 💗",
-        "*goodmorning [@user] - Send a good morning message to someone or receive one from Button 💗",
-        "*goodnight [@user] - Send a goodnight message to someone or receive one from Button 💗",
-        "*mystery - Discover Button's random mystery of the day 💗",
-        "*birthday [@user] - Check a user's birthday 💗",
-        "*add_birthday [@user] [DD/MM] - Add a birthday for a user 💗",
-        "*edit_birthday [@user] [DD/MM] - Edit a user's birthday 💗",
-        "*remove_birthday [@user] - Remove a user's birthday 💗",
-        "*list_birthdays - List all known birthdays 💗",
-        "*dream - Discover what Button is dreaming about 💗",
-        "*drink - See what kind of beverage Button is drinking 💗",
-        "*commands - Display this list of commands",
-    ]
-    await ctx.send("🧸 Here are the available commands for Button:\n" + "\n".join(commands_list))
+    message = (
+        "🧸 **Button's Commands** 🧸\n\n"
+
+        "💗 **Cozy & Social**\n"
+        "*hug [@user] - Send a virtual hug\n"
+        "*goodmorning [@user] - Send a good morning message\n"
+        "*goodnight [@user] - Send a goodnight message\n\n"
+
+        "🌙 **Daily & Mood**\n"
+        "*mood - Check Button's mood for the day\n"
+        "*mystery - Discover Button's mystery of the day\n"
+        "*dream - See what Button is dreaming about\n"
+        "*drink - See what Button is drinking\n\n"
+
+        "🎂 **Birthdays**\n"
+        "*birthday [@user] - Check a birthday\n"
+        "*add_birthday [@user] [DD/MM] - Add a birthday (admin only)\n"
+        "*edit_birthday [@user] [DD/MM] - Edit a birthday (admin only)\n"
+        "*remove_birthday [@user] - Remove a birthday (admin only)\n"
+        "*list_birthdays - List all birthdays\n\n"
+
+        "📖 **Info**\n"
+        "*commands - Show this list\n"
+    )
+
+    await ctx.send(message)
     
 keep_alive()
 bot.run(os.getenv("TOKEN"))
