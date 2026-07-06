@@ -80,7 +80,11 @@ mysteries = [
     "Why do cats purr?",
     "What is love?",
     "Why do we dream?",
-    "What is the sound of one hand clapping?"
+    "What is the sound of one hand clapping?",
+    "Why is moonlight silver?",
+    "What is the color of a shadow?",
+    "Why is x always the unknown?",
+    "What is the shape of a thought?",
 ] 
 
 dreams =[
@@ -161,7 +165,7 @@ async def dream(ctx):
 @bot.command()
 async def drink(ctx):
     drink = random.choice(drinks)
-    await ctx.send(f"🧸 Button is enjoying a {drink} today!")
+    await ctx.send(f"🧸 Button is enjoying a {drink}")
 
 @bot.command()
 async def birthday(ctx, member: discord.Member = None):
