@@ -186,7 +186,7 @@ async def goodmorning(ctx, member: discord.Member = None):
     greetings =[
         f"Good morning {receiver}!",
         f"Wakey wakey, {receiver}!",
-        f"Rise and shine {receiver}!"
+        f"Rise and shine, {receiver}!"
     ]
     greeting = random.choice(greetings)
     goodmorning_messages = [
