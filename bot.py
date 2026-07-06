@@ -148,6 +148,84 @@ def get_bot_mood():
 
     return random.choice(moods)
 
+@bot.command()
+async def mystery(ctx):
+    mystery = random.choice(mysteries)
+    await ctx.send(f"🧸 The mystery of the day is: {mystery}")
+
+@bot.command()
+async def dream(ctx):
+    dream = random.choice(dreams)
+    await ctx.send(f"🧸 Button's dreaming of {dream}")
+
+@bot.command()
+async def drink(ctx):
+    drink = random.choice(drinks)
+    await ctx.send(f"🧸 Button is enjoying a {drink} today!")
+
+@bot.command()
+async def birthday(ctx, member: discord.Member = None):
+    if member:
+        user_id = member.id
+        if user_id in birthdays:
+            day, month = birthdays[user_id]
+            await ctx.send(f"🧸 {member.mention}'s birthday is on {day}/{month} 🎉")
+        else:
+            await ctx.send(f"🧸 Sorry, I don't have {member.mention}'s birthday information. 💔")
+    else:
+        await ctx.send("🧸 Please mention a user to check their birthday. 💗")
+
+@bot.command()
+async def add_birthday(ctx, member: discord.Member, date: str):
+    if ctx.author.guild_permissions.administrator:
+        try:
+            day, month = map(int, date.split("/"))
+            if 1 <= day <= 31 and 1 <= month <= 12:
+                birthdays[member.id] = (day, month)
+                await ctx.send(f"🧸 Birthday for {member.mention} has been set to {day}/{month} 🎉")
+            else:
+                await ctx.send("🧸 Invalid date format. Please use DD/MM format. 💔")
+        except ValueError:
+            await ctx.send("🧸 Invalid date format. Please use DD/MM format. 💔")
+    else:
+        await ctx.send("🧸 You do not have permission to add birthdays. 💔")
+
+@bot.command()
+async def remove_birthday(ctx, member: discord.Member):
+    if ctx.author.guild_permissions.administrator:
+        if member.id in birthdays:
+            del birthdays[member.id]
+            await ctx.send(f"🧸 Birthday for {member.mention} has been removed. 💔")
+        else:
+            await ctx.send(f"🧸 No birthday information found for {member.mention}. 💔")
+    else:
+        await ctx.send("🧸 You do not have permission to remove birthdays. 💔")
+
+@bot.command()
+async def edit_birthday(ctx, member: discord.Member, date: str):
+    if ctx.author.guild_permissions.administrator:
+        try:
+            day, month = map(int, date.split("/"))
+            if 1 <= day <= 31 and 1 <= month <= 12:
+                birthdays[member.id] = (day, month)
+                await ctx.send(f"🧸 Birthday for {member.mention} has been updated to {day}/{month} 🎉")
+            else:
+                await ctx.send("🧸 Invalid date format. Please use DD/MM format. 💔")
+        except ValueError:
+            await ctx.send("🧸 Invalid date format. Please use DD/MM format. 💔")
+    else:
+        await ctx.send("🧸 You do not have permission to edit birthdays. 💔")
+
+@bot.command()
+async def list_birthdays(ctx):
+    if birthdays:
+        birthday_list = []
+        for user_id, (day, month) in birthdays.items():
+            user = await bot.fetch_user(user_id)
+            birthday_list.append(f"{user.name}: {day}/{month}")
+        await ctx.send("🧸 Here are the birthdays I know about:\n" + "\n".join(birthday_list))
+    else:
+        await ctx.send("🧸 I don't have any birthday information yet. 💔")
 
 @bot.command()
 async def mood(ctx):
@@ -209,7 +287,15 @@ async def commands(ctx):
         "*hug [@user] - Send a virtual hug to someone or receive one from Button 💗",
         "*goodmorning [@user] - Send a good morning message to someone or receive one from Button 💗",
         "*goodnight [@user] - Send a goodnight message to someone or receive one from Button 💗",
-        "*commands - Display this list of commands."
+        "*mystery - Discover Button's random mystery of the day 💗",
+        "*birthday [@user] - Check a user's birthday 💗",
+        "*add_birthday [@user] [DD/MM] - Add a birthday for a user 💗",
+        "*edit_birthday [@user] [DD/MM] - Edit a user's birthday 💗",
+        "*remove_birthday [@user] - Remove a user's birthday 💗",
+        "*list_birthdays - List all known birthdays 💗",
+        "*dream - Discover what Button is dreaming about 💗",
+        "*drink - See what kind of beverage Button is drinking 💗",
+        "*commands - Display this list of commands",
     ]
     await ctx.send("🧸 Here are the available commands for Button:\n" + "\n".join(commands_list))
     
