@@ -176,9 +176,9 @@ async def goodnight(ctx, member: discord.Member = None):
     ]
     msg = random.choice(goodnight_messages)
     if member:
-        await ctx.send(f"🌙🧸 {ctx.author.mention} sends you a goodnight, {member.mention}! {msg} 💗")
+        await ctx.send(f"🌙🧸 {ctx.author.mention} sends you a goodnight, {member.mention}! \n {msg} 💗")
     else:
-        await ctx.send(f"🌙🧸 Goodnight {ctx.author.mention}! {msg} 💗")
+        await ctx.send(f"🌙🧸 Goodnight {ctx.author.mention}! \n {msg} 💗")
 
 @bot.command()
 async def goodmorning(ctx, member: discord.Member = None):
@@ -198,7 +198,7 @@ async def goodmorning(ctx, member: discord.Member = None):
     ]
     msg = random.choice(goodmorning_messages)
     if member:
-        await ctx.send(f"☀️🧸 {ctx.author.mention} sends you a goodmorning, {member.mention}! {msg} ")
+        await ctx.send(f"☀️🧸 {ctx.author.mention} sends you a goodmorning, {member.mention}! \n {msg} ")
     else:
         await ctx.send(f"☀️🧸 {msg} ")
 
