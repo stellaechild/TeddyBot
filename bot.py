@@ -241,7 +241,7 @@ async def mood(ctx):
 @bot.command()
 async def rollmx(ctx):
     for i in range(1, 10):
-        await ctx.send(f"/mx")
+        await ctx.send(f"$mx")
         await asyncio.sleep(0.05)
 
 # Command to get encouragement
