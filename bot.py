@@ -1947,7 +1947,7 @@ async def commands(ctx):
         "  • Example: *add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth\n"
         "  • Only the title is required\n"
         "*remove_book <title> - Remove a book\n"
-        "*edit_book Old Title | field | new value - Edit a book\n"
+        "\*edit_book Old Title | field | new value - Edit a book\n"
         "  • Example: *edit_book The Hobbit | pages | 310\n"
         "*add_genre Book Title | Genre - Add a genre\n"
         "*remove_genre Book Title | Genre - Remove a genre\n"
