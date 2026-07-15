@@ -1862,9 +1862,8 @@ async def common_interests(ctx, user: discord.Member = None):
 
 @bot.command()
 async def book_help(ctx):
-    """Show all book-related commands"""
     message = (
-        "🧸📚 **Book Commands Help**\n\n"
+        "🧸📚 **Book Commands**\n\n"
         
         "📚 **Your Personal Book Management**\n"
         "`*mybooks` - Check if you have a book list\n"
@@ -1921,6 +1920,8 @@ async def book_help(ctx):
     )
     
     await ctx.send(message)
+
+
 @bot.command()
 async def commands(ctx):
     message = (
@@ -1945,7 +1946,7 @@ async def commands(ctx):
         "*list_birthdays - List all birthdays\n\n"
         
         "📚 **Button's Library**\n"
-        "*book_help - Show all book-related commands\n"
+        "*book_help - Show all book-related commands\n\n"
         
         "📖 **Help**\n"
         "*commands - Show this list\n\n"
