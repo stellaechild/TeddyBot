@@ -1860,22 +1860,40 @@ async def common_interests(ctx, user: discord.Member = None):
     
     await compare_lists(ctx, ctx.author, user)
 
-@bot.command(name='book_help', aliases=['books', 'library'])
-async def book_help(ctx):
-    """Show all book-related commands"""
+
+@bot.command()
+async def commands(ctx):
     message = (
-        "🧸📚 **Book Commands Help**\n\n"
+        "🧸 # **Button's Commands** 🧸\n\n"
         
-        "📚 **Your Personal Book Management**\n"
+        "💗 ## **Cozy & Social**\n"
+        "*hug [@user] - Send a virtual hug to someone or receive one from Button\n"
+        "*goodmorning [@user] - Send a good morning message to someone or receive one from Button\n"
+        "*goodnight [@user] - Send a goodnight message to someone or receive one from Button\n\n"
+        
+        "🌙 ## **Daily & Mood**\n"
+        "*mood - Check Button's mood for the day\n"
+        "*mystery - Discover Button's mystery of the day\n"
+        "*dream - Check what Button is dreaming about\n"
+        "*drink - Learn what kind of beverage Button is drinking\n\n"
+        
+        "🎂 ## **Birthdays**\n"
+        "*birthday [@user] - Check a birthday\n"
+        "*add_birthday [@user] [DD/MM] - Add a birthday (admin only)\n"
+        "*edit_birthday [@user] [DD/MM] - Edit a birthday (admin only)\n"
+        "*remove_birthday [@user] - Remove a birthday (admin only)\n"
+        "*list_birthdays - List all birthdays\n\n"
+        
+        "📚 ## **Button's Library**\n\n"
+        "📚 ### **Your Personal Book Management**\n"
         "`*mybooks` - Check if you have a book list\n"
         "`*recommend` - Get a random book from your list\n"
         "`*list_books [page]` - List your books alphabetically with interactive pagination\n"
         "`*search_book <title>` - Search your books by title\n"
         "`*book_info <title>` - Get full info about a book\n"
-        "`*summary <title>` - Get the full summary of a book\n"
-        "`*full_info <title>` - Get ALL info including full summary\n\n"
+        "`*summary <title>` - Get the full summary of a book\n\n"
         
-        "✏️ **Adding & Editing Books**\n"
+        "✏️ ### **Adding & Editing Books**\n"
         "`*add_book Title | Author | Pages | Series` - Add a book to your list\n"
         "  • Example: `*add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth`\n"
         "  • Only the title is required\n"
@@ -1888,14 +1906,14 @@ async def book_help(ctx):
         "`*add_mood Book Title | Mood` - Add a mood to a book\n"
         "`*remove_mood Book Title | Mood` - Remove a mood from a book\n\n"
         
-        "📊 **Library Statistics**\n"
+        "📊 ### **Library Statistics**\n"
         "`*library_stats` - Get stats for your library\n"
         "`*length_stats` - Get length statistics for your library\n"
         "`*list_genres` - List all genres in your library\n"
         "`*list_moods` - List all moods in your library\n"
         "`*list_length <short|medium|long>` - List books by length\n\n"
         
-        "🎯 **Smart Recommendations**\n"
+        "🎯 ### **Smart Recommendations**\n"
         "`*recommendmood <mood>` - Recommend a book by mood\n"
         "  • Example: `*recommendmood dark`\n"
         "`*recommendgenre <genre>` - Recommend a book by genre\n"
@@ -1903,59 +1921,28 @@ async def book_help(ctx):
         "`*recommendlength <short|medium|long>` - Recommend a book by length\n"
         "  • Example: `*recommendlength short`\n\n"
         
-        "👥 **Social Book Features**\n"
+        "👥 ### **Social Book Features**\n"
         "`*compare_lists @UserA @UserB` - Compare two users' book lists\n"
         "  • Shows common books, authors, genres, and moods\n"
         "`*rec_common @UserA @UserB` - Get a recommendation based on common interests\n"
         "`*common_interests @User` - See what you have in common with another user\n"
         "`*random_user` - Explore a random user's book list\n\n"
         
-        "🔄 **Other**\n"
-        "`*refresh_books` - Reload your book data from the JSON file\n"
-        "`*my_id` - Get your Discord User ID\n\n"
+        "🔄 ### **Other**\n"
+        "`*refresh_books` - Reload your book data from the JSON file\n\n"
         
-        "💡 **Tips:**\n"
+        "💡 ### ***Tips:**\n"
         "• Use `|` as a separator for commands with multiple fields\n"
         "• Example: `*add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth`\n"
         "• Only the title is required when adding a book\n"
         "• Use `*edit_book Title | help` to see all editable fields\n"
-        "• You can only edit your own books\n"
-        "• Use `*commands` to see all of Button's commands"
+        "• You can only edit your own books"
+        
+        "📖 ## **Help**\n"
+        "*commands - Show this list\n\n"
+    
     )
     
-    await ctx.send(message)
-
-@bot.command()
-async def commands(ctx):
-    message = (
-        "🧸 **Button's Commands** 🧸\n\n"
-        
-        "💗 **Cozy & Social**\n"
-        "*hug [@user] - Send a virtual hug to someone or receive one from Button\n"
-        "*goodmorning [@user] - Send a good morning message to someone or receive one from Button\n"
-        "*goodnight [@user] - Send a goodnight message to someone or receive one from Button\n\n"
-        
-        "🌙 **Daily & Mood**\n"
-        "*mood - Check Button's mood for the day\n"
-        "*mystery - Discover Button's mystery of the day\n"
-        "*dream - Check what Button is dreaming about\n"
-        "*drink - Learn what kind of beverage Button is drinking\n\n"
-        
-        "🎂 **Birthdays**\n"
-        "*birthday [@user] - Check a birthday\n"
-        "*add_birthday [@user] [DD/MM] - Add a birthday (admin only)\n"
-        "*edit_birthday [@user] [DD/MM] - Edit a birthday (admin only)\n"
-        "*remove_birthday [@user] - Remove a birthday (admin only)\n"
-        "*list_birthdays - List all birthdays\n\n"
-        
-        "📚 **Book Commands**\n"
-        "*book_help - Show all book-related commands\n"
-        "• Managing your reading list, recommendations, and more!\n\n"
-        
-        "📖 **Help**\n"
-        "*commands - Show this list\n"
-    )
-    
-    await ctx.send(message)
+    await ctx.send(message)    
 keep_alive()
 bot.run(os.getenv("TOKEN"))
