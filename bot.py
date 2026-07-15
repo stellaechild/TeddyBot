@@ -466,7 +466,7 @@ async def goodmorning(ctx, member: discord.Member = None):
         await ctx.send(f"☀️🧸 {msg} ")
 
 @bot.command()
-async def my_books(ctx):
+async def mybooks(ctx):
     """Check if you have a book list set up"""
     user_id = ctx.author.id
     
@@ -945,7 +945,7 @@ async def library_stats(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def recommend_by_mood(ctx, *, mood):
+async def recommendmood(ctx, *, mood):
     """Recommend a book from YOUR list by mood (e.g., *recommend_by_mood dark)"""
     books = get_book_list_for_user(ctx)
     if books is None:
@@ -968,7 +968,7 @@ async def recommend_by_mood(ctx, *, mood):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def recommend_by_genre(ctx, *, genre):
+async def recommendgenre(ctx, *, genre):
     """Recommend a book from YOUR list by genre (e.g., *recommend_by_genre fantasy)"""
     books = get_book_list_for_user(ctx)
     if books is None:
@@ -1060,7 +1060,7 @@ async def refresh_books(ctx):
     await ctx.send(f"🔄 Refreshed! Loaded {len(books)} books from your to-read list. 🧸")
 
 @bot.command()
-async def recommend_by_length(ctx, length: str):
+async def recommendlength(ctx, length: str):
     """Recommend a book by length (short, medium, long)
     Example: *recommend_by_length short"""
     
@@ -1094,7 +1094,7 @@ async def recommend_by_length(ctx, length: str):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def list_by_length(ctx, length: str):
+async def list_length(ctx, length: str):
     """List all books of a specific length (short, medium, long)
     Example: *list_by_length short"""
     
@@ -1271,7 +1271,7 @@ async def commands(ctx):
         "*list_birthdays - List all birthdays\n\n"
 
         "📚 **Book Management**\n"
-        "*my_books - Check if you have a book list\n"
+        "*mybooks - Check if you have a book list\n"
         "*recommend - Get a random book from your list\n"
         "*list_books [page] - List your books alphabetically\n"
         "*search_book <title> - Search your books\n"
@@ -1284,12 +1284,12 @@ async def commands(ctx):
         "*add_mood <title> <mood> - Add a mood to a book\n"
         "*remove_mood <title> <mood> - Remove a mood\n"
         "*library_stats - Get stats for your library\n"
-        "*recommend_by_mood <mood> - Recommend by mood\n"
-        "*recommend_by_genre <genre> - Recommend by genre\n"
+        "*recommendmood <mood> - Recommend by mood\n"
+        "*recommendgenre <genre> - Recommend by genre\n"
         "*list_genres - List your genres\n"
         "*list_moods - List your moods\n\n"
-        "*recommend_by_length <short|medium|long> - Recommend by length\n"
-        "*list_by_length <short|medium|long> - List books by length\n"
+        "*recommendlength <short|medium|long> - Recommend by length\n"
+        "*list_length <short|medium|long> - List books by length\n"
         "*length_stats - Get length statistics\n"
         "*refresh_books - Reload your book data\n\n"
 
