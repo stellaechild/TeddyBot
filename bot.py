@@ -40,14 +40,13 @@ user_books_cache = {}
 
 class BookPaginationView(View):
     def __init__(self, ctx, books, page, items_per_page=10):
-        super().__init__(timeout=60)  # View expires after 60 seconds
+        super().__init__(timeout=500)  # Increased timeout to 500 seconds
         self.ctx = ctx
         self.books = books
         self.page = page
         self.items_per_page = items_per_page
         self.total_pages = (len(books) + items_per_page - 1) // items_per_page
-        
-        # Update button states
+        self.message = None  # Will store the message for editing
         self.update_buttons()
     
     def update_buttons(self):
@@ -98,7 +97,13 @@ class BookPaginationView(View):
     
     async def interaction_check(self, interaction):
         # Only allow the original user to interact
-        return interaction.user == self.ctx.author
+        if interaction.user != self.ctx.author:
+            await interaction.response.send_message(
+                "🧸 This is not your book list! Please use *list_books yourself. 💔",
+                ephemeral=True
+            )
+            return False
+        return True
     
     async def on_timeout(self):
         # Disable all buttons when the view times out
@@ -106,11 +111,12 @@ class BookPaginationView(View):
             if isinstance(item, Button):
                 item.disabled = True
         
-        # Update the message
-        try:
-            await self.message.edit(view=self)
-        except:
-            pass
+        # Update the message if we have it
+        if self.message:
+            try:
+                await self.message.edit(view=self)
+            except:
+                pass
     
     async def navigate_to_page(self, interaction, page):
         self.page = page
@@ -131,8 +137,10 @@ class BookPaginationView(View):
         )
         embed.set_footer(text=f"Total: {len(self.books)} books")
         
+        # Update the message with the new embed and view
         await interaction.response.edit_message(embed=embed, view=self)
     
+    # Button callbacks
     @discord.ui.button(label="⏮️ First", style=discord.ButtonStyle.gray, custom_id="first")
     async def first_button(self, interaction: discord.Interaction, button: Button):
         await self.navigate_to_page(interaction, 1)
@@ -643,7 +651,7 @@ async def list_books(ctx, page: int = 1):
     
     embed = discord.Embed(
         title=f"🧸📚 {ctx.author.display_name}'s To-Read Books (Page {page}/{total_pages})",
-        description="\n".join(book_list),
+        description="\n".join(book_list) if book_list else "No books on this page.",
         color=discord.Color.blue()
     )
     embed.set_footer(text=f"Total: {len(books)} books")
@@ -651,7 +659,7 @@ async def list_books(ctx, page: int = 1):
     # Create the pagination view
     view = BookPaginationView(ctx, sorted_books, page, items_per_page)
     
-    # Send the message and store it in the view for timeout handling
+    # Send the message and store it in the view
     message = await ctx.send(embed=embed, view=view)
     view.message = message
 
