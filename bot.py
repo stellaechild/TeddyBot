@@ -19,11 +19,11 @@ server_id = int(os.getenv("SERVER_ID"))
 SERVER_NAME = os.getenv("SERVER_NAME")
 
 # User IDs
-USERA = int(os.getenv("USERA"))
-USERB = int(os.getenv("USERB"))
-USERC = int(os.getenv("USERC"))
-USERD = int(os.getenv("USERD"))
-USERE = int(os.getenv("USERE"))
+USERA = os.getenv("USERA")
+USERB = os.getenv("USERB")
+USERC = os.getenv("USERC")
+USERD = os.getenv("USERD")
+USERE = os.getenv("USERE")
 
 # Map user IDs to their JSON files
 USER_BOOK_FILES = {
@@ -1287,8 +1287,8 @@ async def commands(ctx):
         "*list_moods - List your moods\n\n"
         "*recommend_by_length <short|medium|long> - Recommend by length\n"
         "*list_by_length <short|medium|long> - List books by length\n"
-        "*length_stats - Get length statistics\n\n"
-        "*refresh_books - Reload your book data\n"
+        "*length_stats - Get length statistics\n"
+        "*refresh_books - Reload your book data\n\n"
 
         "📖 **Info**\n"
         "*commands - Show this list\n"
