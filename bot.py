@@ -19,11 +19,11 @@ server_id = int(os.getenv("SERVER_ID"))
 SERVER_NAME = os.getenv("SERVER_NAME")
 
 # User IDs
-USERA = os.getenv("USERA")
-USERB = os.getenv("USERB")
-USERC = os.getenv("USERC")
-USERD = os.getenv("USERD")
-USERE = os.getenv("USERE")
+USERA = int(os.getenv("USERA"))
+USERB = int(os.getenv("USERB"))
+USERC = int(os.getenv("USERC"))
+USERD = int(os.getenv("USERD"))
+USERE = int(os.getenv("USERE"))
 
 # Map user IDs to their JSON files
 USER_BOOK_FILES = {
