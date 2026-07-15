@@ -1399,8 +1399,8 @@ async def refresh_books(ctx):
 async def recommendlength(ctx, length: str):
     """Recommend a book by length (short, medium, long)
     Example: *recommend_by_length short"""
-    if length is None or length == "":
-        await ctx.send("🧸📚 Please specify a length: short, medium, or long. 🧸")
+    if length is None or length.strip() == "":
+        await ctx.send("🧸📚 Please specify a length: `short`, `medium`, or `long`.\nExample: `*recommendlength short` 🧸")
         return
     
     books = get_book_list_for_user(ctx)
@@ -1436,10 +1436,6 @@ async def recommendlength(ctx, length: str):
 async def list_length(ctx, length: str):
     """List all books of a specific length (short, medium, long)
     Example: *list_by_length short"""
-    
-    if length is None or length == "":
-        await ctx.send("🧸📚 Please specify a length: short, medium, or long 🧸")
-        return
     
     books = get_book_list_for_user(ctx)
     if books is None:
