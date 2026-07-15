@@ -1404,24 +1404,6 @@
     "status": "to-read"
   },
   {
-    "title": "Emma",
-    "series": null,
-    "author": "Jane Austen",
-    "pages": "474",
-    "tags": [
-      "emma",
-      "genre: comedy",
-      "genre: new adult",
-      "genre: romance",
-      "mood: challenging",
-      "rated: 5.0/5",
-      "read"
-    ],
-    "summary": "Emma, by Jane Austen, is a novel about youthful hubris and the perils of misconstrued romance. The novel was first published in December 1815. As in her other novels, Austen explores the concerns and difficulties of genteel women living in Georgian-Regency England; she also creates a lively comedy of manners among her characters. Before she began the novel, Austen wrote, \"I am going to take a heroine whom no one but myself will much like.\" In the very first sentence she introduces the title character as \"Emma Woodhouse, handsome, clever, and rich.\" Emma, however, is also rather spoiled, headstrong, and self-satisfied; she greatly overestimates her own matchmaking abilities; she is blind to the dangers of meddling in other people's lives; and her imagination and perceptions often lead her astray.",
-    "isbn": "",
-    "status": "read"
-  },
-  {
     "title": "The God of the Woods",
     "series": null,
     "author": "Liz    Moore",
@@ -4202,15 +4184,13 @@
     "pages": "474",
     "tags": [
       "emma",
-      "genre: comedy",
-      "genre: new adult",
-      "genre: young adult",
       "mood: humorous",
-      "to-read"
+      "to-read",
+      "genre: classic"
     ],
     "summary": "'Emma' by Jane Austen.",
     "isbn": "9780141192475",
-    "status": "to-read"
+    "status": "read"
   },
   {
     "title": "Neverwhere (London Below, #1)",
