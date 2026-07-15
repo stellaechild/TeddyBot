@@ -1921,7 +1921,6 @@ async def book_help(ctx):
     
     await ctx.send(message)
 
-
 @bot.command()
 async def commands(ctx):
     message = (
