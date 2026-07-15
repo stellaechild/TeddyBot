@@ -1860,10 +1860,11 @@ async def common_interests(ctx, user: discord.Member = None):
     
     await compare_lists(ctx, ctx.author, user)
 
-@bot.command()
+@bot.command(name='book_help', aliases=['books', 'library'])
 async def book_help(ctx):
+    """Show all book-related commands"""
     message = (
-        "🧸📚 **Book Commands**\n\n"
+        "🧸📚 **Book Commands Help**\n\n"
         
         "📚 **Your Personal Book Management**\n"
         "`*mybooks` - Check if you have a book list\n"
@@ -1871,7 +1872,8 @@ async def book_help(ctx):
         "`*list_books [page]` - List your books alphabetically with interactive pagination\n"
         "`*search_book <title>` - Search your books by title\n"
         "`*book_info <title>` - Get full info about a book\n"
-        "`*summary <title>` - Get the full summary of a book\n\n"
+        "`*summary <title>` - Get the full summary of a book\n"
+        "`*full_info <title>` - Get ALL info including full summary\n\n"
         
         "✏️ **Adding & Editing Books**\n"
         "`*add_book Title | Author | Pages | Series` - Add a book to your list\n"
@@ -1909,14 +1911,16 @@ async def book_help(ctx):
         "`*random_user` - Explore a random user's book list\n\n"
         
         "🔄 **Other**\n"
-        "`*refresh_books` - Reload your book data from the JSON file\n\n"
+        "`*refresh_books` - Reload your book data from the JSON file\n"
+        "`*my_id` - Get your Discord User ID\n\n"
         
         "💡 **Tips:**\n"
         "• Use `|` as a separator for commands with multiple fields\n"
         "• Example: `*add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth`\n"
         "• Only the title is required when adding a book\n"
         "• Use `*edit_book Title | help` to see all editable fields\n"
-        "• You can only edit your own books"
+        "• You can only edit your own books\n"
+        "• Use `*commands` to see all of Button's commands"
     )
     
     await ctx.send(message)
@@ -1944,14 +1948,14 @@ async def commands(ctx):
         "*remove_birthday [@user] - Remove a birthday (admin only)\n"
         "*list_birthdays - List all birthdays\n\n"
         
-        "📚 **Button's Library**\n"
-        "*book_help - Show all book-related commands\n\n"
+        "📚 **Book Commands**\n"
+        "*book_help - Show all book-related commands\n"
+        "• Managing your reading list, recommendations, and more!\n\n"
         
         "📖 **Help**\n"
-        "*commands - Show this list\n\n"
-    
+        "*commands - Show this list\n"
     )
     
-    await ctx.send(message)    
+    await ctx.send(message)
 keep_alive()
 bot.run(os.getenv("TOKEN"))
