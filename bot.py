@@ -749,7 +749,7 @@ async def add_book(ctx, *, args: str):
     Example: *add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth
     Only Title is required, everything else is optional."""
     
-    if not args:
+    if args is None or args == "":
         await ctx.send("🧸📚 Please provide book details. Usage: *add_book Title | Author | Pages | Series 💔")
         return
 
@@ -767,7 +767,7 @@ async def add_book(ctx, *, args: str):
     # First part is always the title
     title = parts[0] if parts else None
     
-    if not title:
+    if title is None or title == "":
         await ctx.send("🧸📚 You need to at least provide a title! Usage: *add_book Title | Author | Pages | Series 💔")
         return
     
@@ -808,7 +808,7 @@ async def remove_book(ctx, *, title: str):
     Usage: *remove_book Title
     Example: *remove_book The Hobbit"""
     
-    if not title:
+    if title is None or title == "":
         await ctx.send("🧸📚 Please provide a book title to remove. 💔")
         return
 
@@ -860,7 +860,7 @@ async def edit_book(ctx, *, args: str):
     *edit_book The Hobbit | genre | Fantasy, Adventure
     *edit_book The Hobbit | mood | Adventurous, Whimsical"""
     
-    if not args:
+    if args is None or args == "":
         await ctx.send("🧸📚 Please provide book details. Usage: *edit_book Old Title | field | new value 💔")
         return
 
@@ -1009,7 +1009,7 @@ async def add_genre(ctx, *, args: str):
     Usage: *add_genre Book Title | Genre
     Example: *add_genre The Hobbit | Fantasy"""
     
-    if not args:
+    if args is None or args == "":
         await ctx.send("🧸📚 Please provide book details. Usage: *add_genre Book Title | Genre 💔")
         return
 
@@ -1053,7 +1053,7 @@ async def remove_genre(ctx, *, args: str):
     Usage: *remove_genre Book Title | Genre
     Example: *remove_genre The Hobbit | Fantasy"""
     
-    if not args:
+    if args is None or args == "":
         await ctx.send("🧸📚 Please provide book details. Usage: *remove_genre Book Title | Genre 💔")
         return
 
@@ -1098,7 +1098,7 @@ async def add_mood(ctx, *, args: str):
     Usage: *add_mood Book Title | Mood
     Example: *add_mood The Hobbit | Adventurous"""
     
-    if not args:
+    if args is None or args == "":
         await ctx.send("🧸📚 Please provide book details. Usage: *add_mood Book Title | Mood 💔")
         return
 
@@ -1142,7 +1142,7 @@ async def remove_mood(ctx, *, args: str):
     Usage: *remove_mood Book Title | Mood
     Example: *remove_mood The Hobbit | Adventurous"""
     
-    if not args:
+    if args is None or args == "":
         await ctx.send("🧸📚 Please provide book details. Usage: *remove_mood Book Title | Mood 💔")
         return
 
@@ -1230,7 +1230,7 @@ async def library_stats(ctx):
 async def summary(ctx, *, title: str):
     """Get the full summary of a specific book without truncation.
     Usage: *summary Book Title"""
-    if not title:
+    if title is None or title == "":
         await ctx.send("🧸📚 Please provide a book title. 💔")
         return
     user_id = ctx.author.id
@@ -1277,7 +1277,7 @@ async def summary(ctx, *, title: str):
 @bot.command()
 async def recommendmood(ctx, *, mood):
     """Recommend a book from YOUR list by mood (e.g., *recommend_by_mood dark)"""
-    if not mood:
+    if mood is None or mood == "":
         await ctx.send("🧸📚 Please specify a mood. 💔")
         return
     books = get_book_list_for_user(ctx)
@@ -1303,7 +1303,7 @@ async def recommendmood(ctx, *, mood):
 @bot.command()
 async def recommendgenre(ctx, *, genre):
     """Recommend a book from YOUR list by genre (e.g., *recommend_by_genre fantasy)"""
-    if not genre:
+    if genre is None or genre == "":
         await ctx.send("🧸📚 Please specify a genre. 💔")
         return
     books = get_book_list_for_user(ctx)
@@ -1399,7 +1399,7 @@ async def refresh_books(ctx):
 async def recommendlength(ctx, length: str):
     """Recommend a book by length (short, medium, long)
     Example: *recommend_by_length short"""
-    if not length:
+    if length is None or length == "":
         await ctx.send("🧸📚 Please specify a length: short, medium, or long. 🧸")
         return
     
@@ -1437,7 +1437,7 @@ async def list_length(ctx, length: str):
     """List all books of a specific length (short, medium, long)
     Example: *list_by_length short"""
     
-    if not length:
+    if length is None or length == "":
         await ctx.send("🧸📚 Please specify a length: short, medium, or long 🧸")
         return
     
