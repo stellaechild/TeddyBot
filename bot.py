@@ -1,4 +1,5 @@
 from datetime import datetime
+from discord.ui import Button, View
 import asyncio
 from concurrent.futures import wait
 import discord
@@ -36,6 +37,122 @@ USER_BOOK_FILES = {
 
 # Cache for user books
 user_books_cache = {}
+
+class BookPaginationView(View):
+    def __init__(self, ctx, books, page, items_per_page=10):
+        super().__init__(timeout=60)  # View expires after 60 seconds
+        self.ctx = ctx
+        self.books = books
+        self.page = page
+        self.items_per_page = items_per_page
+        self.total_pages = (len(books) + items_per_page - 1) // items_per_page
+        
+        # Update button states
+        self.update_buttons()
+    
+    def update_buttons(self):
+        # Clear existing buttons
+        self.clear_items()
+        
+        # Add navigation buttons
+        if self.total_pages > 1:
+            # First page button
+            self.add_item(Button(
+                label="⏮️ First",
+                style=discord.ButtonStyle.gray,
+                custom_id="first",
+                disabled=(self.page == 1)
+            ))
+            
+            # Previous page button
+            self.add_item(Button(
+                label="◀️ Previous",
+                style=discord.ButtonStyle.primary,
+                custom_id="prev",
+                disabled=(self.page == 1)
+            ))
+            
+            # Page indicator
+            self.add_item(Button(
+                label=f"📄 {self.page}/{self.total_pages}",
+                style=discord.ButtonStyle.secondary,
+                disabled=True,
+                custom_id="page_indicator"
+            ))
+            
+            # Next page button
+            self.add_item(Button(
+                label="Next ▶️",
+                style=discord.ButtonStyle.primary,
+                custom_id="next",
+                disabled=(self.page == self.total_pages)
+            ))
+            
+            # Last page button
+            self.add_item(Button(
+                label="Last ⏭️",
+                style=discord.ButtonStyle.gray,
+                custom_id="last",
+                disabled=(self.page == self.total_pages)
+            ))
+    
+    async def interaction_check(self, interaction):
+        # Only allow the original user to interact
+        return interaction.user == self.ctx.author
+    
+    async def on_timeout(self):
+        # Disable all buttons when the view times out
+        for item in self.children:
+            if isinstance(item, Button):
+                item.disabled = True
+        
+        # Update the message
+        try:
+            await self.message.edit(view=self)
+        except:
+            pass
+    
+    async def navigate_to_page(self, interaction, page):
+        self.page = page
+        self.update_buttons()
+        
+        # Get the books for this page
+        start = (self.page - 1) * self.items_per_page
+        end = min(start + self.items_per_page, len(self.books))
+        
+        book_list = []
+        for i, book in enumerate(self.books[start:end], start=start+1):
+            book_list.append(format_book_list(book, i))
+        
+        embed = discord.Embed(
+            title=f"🧸📚 {self.ctx.author.display_name}'s To-Read Books (Page {self.page}/{self.total_pages})",
+            description="\n".join(book_list) if book_list else "No books on this page.",
+            color=discord.Color.blue()
+        )
+        embed.set_footer(text=f"Total: {len(self.books)} books")
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+    
+    @discord.ui.button(label="⏮️ First", style=discord.ButtonStyle.gray, custom_id="first")
+    async def first_button(self, interaction: discord.Interaction, button: Button):
+        await self.navigate_to_page(interaction, 1)
+    
+    @discord.ui.button(label="◀️ Previous", style=discord.ButtonStyle.primary, custom_id="prev")
+    async def prev_button(self, interaction: discord.Interaction, button: Button):
+        await self.navigate_to_page(interaction, self.page - 1)
+    
+    @discord.ui.button(label="📄 Page", style=discord.ButtonStyle.secondary, disabled=True, custom_id="page_indicator")
+    async def page_indicator(self, interaction: discord.Interaction, button: Button):
+        # This button is disabled and just shows the page number
+        pass
+    
+    @discord.ui.button(label="Next ▶️", style=discord.ButtonStyle.primary, custom_id="next")
+    async def next_button(self, interaction: discord.Interaction, button: Button):
+        await self.navigate_to_page(interaction, self.page + 1)
+    
+    @discord.ui.button(label="Last ⏭️", style=discord.ButtonStyle.gray, custom_id="last")
+    async def last_button(self, interaction: discord.Interaction, button: Button):
+        await self.navigate_to_page(interaction, self.total_pages)
 
 def get_user_books(user_id):
     """Get books for a specific user from their JSON file"""
@@ -495,7 +612,7 @@ async def recommend(ctx):
 
 @bot.command(aliases=['list'])
 async def list_books(ctx, page: int = 1):
-    """List YOUR books alphabetically (numbered)"""
+    """List YOUR books alphabetically (numbered) with interactive pagination"""
     books = get_book_list_for_user(ctx)
     if books is None:
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
@@ -529,9 +646,14 @@ async def list_books(ctx, page: int = 1):
         description="\n".join(book_list),
         color=discord.Color.blue()
     )
-    embed.set_footer(text=f"Total: {len(books)} books • Use *list_books <page> to see more")
+    embed.set_footer(text=f"Total: {len(books)} books")
     
-    await ctx.send(embed=embed)
+    # Create the pagination view
+    view = BookPaginationView(ctx, sorted_books, page, items_per_page)
+    
+    # Send the message and store it in the view for timeout handling
+    message = await ctx.send(embed=embed, view=view)
+    view.message = message
 
 @bot.command(aliases=['find', 'lookup'])
 async def search_book(ctx, *, query):
