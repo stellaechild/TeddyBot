@@ -1976,8 +1976,7 @@ async def commands(ctx):
         "*random_user - Explore a random user's list\n\n"
         
         "**🔄 Other**\n"
-        "*refresh_books - Reload your book data\n"
-        "*my_id - Get your Discord User ID\n\n"
+        "*refresh_books - Reload your book data\n\n"
         
         "**💡 Tips:**\n"
         "• Use `|` as a separator for commands with multiple fields\n"
