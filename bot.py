@@ -96,6 +96,78 @@ class SimpleBookPaginationView(View):
         if self.page < self.total_pages:
             await self.update_page(interaction, self.page + 1)
 
+def split_long_text(text, max_length=1000):
+    """Split long text into chunks for Discord embed fields"""
+    if not text:
+        return [text]
+    
+    # If text is shorter than max_length, return as is
+    if len(text) <= max_length:
+        return [text]
+    
+    chunks = []
+    current_chunk = ""
+    
+    # Split by sentences to avoid cutting in the middle of a word
+    sentences = text.replace('\n', ' ').split('. ')
+    
+    for sentence in sentences:
+        if len(current_chunk) + len(sentence) + 2 <= max_length:
+            if current_chunk:
+                current_chunk += ". " + sentence
+            else:
+                current_chunk = sentence
+        else:
+            if current_chunk:
+                chunks.append(current_chunk + ".")
+                current_chunk = sentence
+            else:
+                # If a single sentence is too long, split by words
+                words = sentence.split()
+                current_chunk = ""
+                for word in words:
+                    if len(current_chunk) + len(word) + 1 <= max_length:
+                        if current_chunk:
+                            current_chunk += " " + word
+                        else:
+                            current_chunk = word
+                    else:
+                        chunks.append(current_chunk + "...")
+                        current_chunk = word
+                chunks.append(current_chunk + ".")
+                return chunks
+    
+    if current_chunk:
+        chunks.append(current_chunk + ".")
+    
+    return chunks
+
+def truncate_summary(summary, max_length=1000):
+    """Truncate summary to a reasonable length for Discord embed"""
+    if not summary:
+        return "No summary available."
+    
+    # Clean up the summary
+    summary = summary.strip()
+    
+    # If it's short enough, return as is
+    if len(summary) <= max_length:
+        return summary
+    
+    # Try to find a good cutoff point (end of a sentence)
+    cutoff = summary[:max_length]
+    last_period = cutoff.rfind('.')
+    last_question = cutoff.rfind('?')
+    last_exclamation = cutoff.rfind('!')
+    
+    # Use the last sentence ending as cutoff
+    last_sentence_end = max(last_period, last_question, last_exclamation)
+    
+    if last_sentence_end > max_length - 50:
+        return cutoff[:last_sentence_end + 1] + " ..."
+    else:
+        return cutoff + " ..."
+    
 def get_user_books(user_id):
     """Get books for a specific user from their JSON file"""
     if user_id in user_books_cache:
@@ -185,12 +257,13 @@ def get_length_emoji(pages):
 
 # Update the format_book_embed function
 def format_book_embed(book, title_prefix="", user_id=None):
-    """Format a book as a Discord embed with length info"""
+    """Format a book as a Discord embed with proper text handling"""
     embed = discord.Embed(
         title=f"{title_prefix}{book['title']}",
         color=discord.Color.blue()
     )
     
+    # Author and basic info
     embed.add_field(name="✍️ Author", value=book['author'], inline=True)
     
     # Add page length with category
@@ -216,10 +289,9 @@ def format_book_embed(book, title_prefix="", user_id=None):
     if other_tags:
         embed.add_field(name="🏷️ Tags", value=', '.join(other_tags[:5]), inline=False)
     
+    # Summary - properly truncated
     if book.get('summary'):
-        summary = book['summary']
-        if len(summary) > 500:
-            summary = summary[:500] + "..."
+        summary = truncate_summary(book['summary'], 950)  # Leave room for "Read more" indicator
         embed.add_field(name="📝 Summary", value=summary, inline=False)
     
     # Add user info
@@ -629,9 +701,13 @@ async def search_book(ctx, *, query):
         await ctx.send(embed=embed)
 
 @bot.command()
-async def book_info(ctx, *, title):
-    """Get all info about a specific book in YOUR list by exact title"""
+async def book_info(ctx, *, title: str):
+    """Get ALL information about a book including the full summary.
+    Usage: *book_info Book Title"""
+    
+    user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
+    
     if books is None:
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
@@ -639,16 +715,33 @@ async def book_info(ctx, *, title):
     results = [b for b in books if b['title'].lower() == title.lower()]
     
     if not results:
-        await ctx.send(f"🧸📚 Button couldn't find a book titled '{title}' in your list. 💔")
+        await ctx.send(f"🧸📚 Couldn't find '{title}' in your list. 💔")
         return
     
     book = results[0]
-    embed = format_book_embed(book, "📖 Book Details: ", ctx.author.id)
+    
+    # First, send the basic embed with truncated summary
+    embed = format_book_embed(book, "📖 Full Book Info: ", ctx.author.id)
     await ctx.send(embed=embed)
+    
+    # If there's a summary, send the full version separately
+    if book.get('summary') and len(book['summary']) > 950:
+        await ctx.send("📝 **Full Summary:**")
+        summary_chunks = split_long_text(book['summary'], 950)
+        
+        for i, chunk in enumerate(summary_chunks, start=1):
+            if len(summary_chunks) == 1:
+                await ctx.send(chunk)
+            else:
+                await ctx.send(f"**Part {i}/{len(summary_chunks)}:**\n{chunk}")
 
 @bot.command()
-async def add_book(ctx, title: str, author: str = None):
-    """Add a book to YOUR to-read list (only you can edit your list)"""
+async def add_book(ctx, *, args: str):
+    """Add a book to YOUR to-read list.
+    Usage: *add_book Title | Author | Pages | Series
+    Example: *add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth
+    Only Title is required, everything else is optional."""
+    
     user_id = ctx.author.id
     
     if user_id not in USER_BOOK_FILES:
@@ -657,31 +750,53 @@ async def add_book(ctx, title: str, author: str = None):
     
     books = get_user_books(user_id)
     
+    # Split by the delimiter |
+    parts = [p.strip() for p in args.split('|')]
+    
+    # First part is always the title
+    title = parts[0] if parts else None
+    
+    if not title:
+        await ctx.send("🧸📚 You need to at least provide a title! Usage: *add_book Title | Author | Pages | Series 💔")
+        return
+    
     # Check if book already exists
     existing = [b for b in books if b['title'].lower() == title.lower()]
     if existing:
         await ctx.send(f"🧸📚 '{title}' is already in your list! 💔")
         return
     
+    # Get optional fields
+    author = parts[1] if len(parts) > 1 and parts[1] else "Unknown"
+    pages = parts[2] if len(parts) > 2 and parts[2] else ""
+    series = parts[3] if len(parts) > 3 and parts[3] else None
+    
     # Create new book entry
     new_book = {
         "title": title,
-        "series": None,
-        "author": author or "Unknown",
-        "pages": "",
+        "series": series,
+        "author": author,
+        "pages": pages,
         "tags": [],
         "summary": ""
     }
     
     books.append(new_book)
     if save_user_books(user_id, books):
-        await ctx.send(f"🧸📚 Added '{title}' by {new_book['author']} to your to-read list! 💔")
+        await ctx.send(f"🧸📚 Added '{title}' by {author} to your to-read list! 📖")
+        if pages:
+            await ctx.send(f"📄 Pages: {pages}")
+        if series:
+            await ctx.send(f"🔗 Series: {series}")
     else:
         await ctx.send("❌ Failed to save the book. Please check the file permissions. 💔")
 
 @bot.command()
-async def remove_book(ctx, *, title):
-    """Remove a book from YOUR to-read list (only you can edit your list)"""
+async def remove_book(ctx, *, title: str):
+    """Remove a book from YOUR to-read list.
+    Usage: *remove_book Title
+    Example: *remove_book The Hobbit"""
+    
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -689,21 +804,23 @@ async def remove_book(ctx, *, title):
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
-    # Find books matching the title
-    matches = [b for b in books if title.lower() in b['title'].lower()]
+    # Find exact title match
+    matches = [b for b in books if b['title'].lower() == title.lower()]
     
     if not matches:
-        await ctx.send(f"🧸📚 Couldn't find a book matching '{title}' in your list. 🧸💔")
-        return
-    
-    if len(matches) > 1:
-        # Multiple matches found
-        book_list = []
-        for i, book in enumerate(matches[:5], 1):
-            book_list.append(f"{i}. {book['title']} — {book['author']}")
-        
-        await ctx.send(f"🧸📚 🧸Multiple books found matching '{title}'. Please specify the exact title:\n" + "\n".join(book_list))
-        return
+        # If no exact match, try partial match
+        partial_matches = [b for b in books if title.lower() in b['title'].lower()]
+        if partial_matches:
+            # Show matching books
+            book_list = []
+            for i, book in enumerate(partial_matches[:5], 1):
+                book_list.append(f"{i}. {book['title']} — {book['author']}")
+            
+            await ctx.send(f"🧸📚 Multiple books found matching '{title}'. Please use the exact title:\n" + "\n".join(book_list))
+            return
+        else:
+            await ctx.send(f"🧸📚 Couldn't find '{title}' in your list. 💔")
+            return
     
     # Remove the book
     book_to_remove = matches[0]
@@ -712,13 +829,21 @@ async def remove_book(ctx, *, title):
     if save_user_books(user_id, books):
         await ctx.send(f"🗑️ Removed '{book_to_remove['title']}' from your to-read list. 🧸💔")
     else:
-        await ctx.send("❌ Failed to remove the book. Please check the file permissions. 🧸💔")
+        await ctx.send("❌ Failed to remove the book. Please check the file permissions. 💔")
 
 @bot.command()
-async def edit_book(ctx, old_title: str, field: str = None, *, value: str = None):
+async def edit_book(ctx, *, args: str):
     """Edit a book in YOUR list.
-    Usage: *edit_book "Old Title" <field> <new value>
-    Fields: title, author, pages, series, summary, tags, genre, mood"""
+    Usage: *edit_book Old Title | field | new value
+    Fields: title, author, pages, series, summary, genre, mood, tags
+    
+    Examples:
+    *edit_book The Hobbit | title | The Hobbit: An Unexpected Journey
+    *edit_book The Hobbit | author | J.R.R. Tolkien
+    *edit_book The Hobbit | pages | 310
+    *edit_book The Hobbit | series | Middle Earth
+    *edit_book The Hobbit | genre | Fantasy, Adventure
+    *edit_book The Hobbit | mood | Adventurous, Whimsical"""
     
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
@@ -727,8 +852,19 @@ async def edit_book(ctx, old_title: str, field: str = None, *, value: str = None
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
+    # Split by the delimiter |
+    parts = [p.strip() for p in args.split('|')]
+    
+    if len(parts) < 2:
+        await ctx.send("🧸📚 Invalid format! Use: *edit_book Old Title | field | new value 💔")
+        return
+    
+    old_title = parts[0]
+    field = parts[1].lower() if len(parts) > 1 else None
+    new_value = parts[2] if len(parts) > 2 else None
+    
     # Find the book
-    matches = [b for b in books if old_title.lower() == b['title'].lower()]
+    matches = [b for b in books if b['title'].lower() == old_title.lower()]
     
     if not matches:
         await ctx.send(f"🧸📚 Couldn't find '{old_title}' in your list. 💔")
@@ -737,7 +873,7 @@ async def edit_book(ctx, old_title: str, field: str = None, *, value: str = None
     book = matches[0]
     
     # If no field specified, show help
-    if field is None:
+    if field is None or field == "help":
         embed = discord.Embed(
             title=f"✏️ Editing: {book['title']}",
             description="**Current Information:**",
@@ -747,7 +883,7 @@ async def edit_book(ctx, old_title: str, field: str = None, *, value: str = None
         embed.add_field(name="Author", value=book['author'], inline=False)
         embed.add_field(name="Pages", value=book.get('pages', 'Not set'), inline=False)
         embed.add_field(name="Series", value=book.get('series', 'Not set'), inline=False)
-        embed.add_field(name="Summary", value=book.get('summary', 'Not set')[:200] + "...", inline=False)
+        embed.add_field(name="Summary", value=book.get('summary', 'Not set')[:200] + "..." if book.get('summary') else 'Not set', inline=False)
         
         genres = [tag.replace('genre: ', '') for tag in book.get('tags', []) if tag.startswith('genre:')]
         moods = [tag.replace('mood: ', '') for tag in book.get('tags', []) if tag.startswith('mood:')]
@@ -756,21 +892,20 @@ async def edit_book(ctx, old_title: str, field: str = None, *, value: str = None
         
         embed.add_field(
             name="📝 How to edit",
-            value="`*edit_book \"Old Title\" title \"New Title\"`\n"
-                  "`*edit_book \"Old Title\" author \"New Author\"`\n"
-                  "`*edit_book \"Old Title\" pages 123`\n"
-                  "`*edit_book \"Old Title\" series \"Series Name\"`\n"
-                  "`*edit_book \"Old Title\" summary \"New summary text\"`\n"
-                  "`*edit_book \"Old Title\" genre \"Fantasy, Sci-Fi\"` (comma-separated)\n"
-                  "`*edit_book \"Old Title\" mood \"Dark, Suspenseful\"` (comma-separated)",
+            value="`*edit_book Old Title | title | New Title`\n"
+                  "`*edit_book Old Title | author | New Author`\n"
+                  "`*edit_book Old Title | pages | 123`\n"
+                  "`*edit_book Old Title | series | Series Name`\n"
+                  "`*edit_book Old Title | summary | New summary text`\n"
+                  "`*edit_book Old Title | genre | Fantasy, Sci-Fi` (comma-separated)\n"
+                  "`*edit_book Old Title | mood | Dark, Suspenseful` (comma-separated)\n"
+                  "`*edit_book Old Title | tags | custom, tags`",
             inline=False
         )
         await ctx.send(embed=embed)
         return
     
-    field = field.lower()
     old_value = None
-    new_value = value if value else None
     
     # Handle different fields
     if field == "title":
@@ -790,7 +925,7 @@ async def edit_book(ctx, old_title: str, field: str = None, *, value: str = None
         
     elif field == "pages":
         old_value = book.get('pages', 'Not set')
-        if not new_value.isdigit():
+        if new_value and not new_value.isdigit():
             await ctx.send("❌ Pages must be a number! 🧸")
             return
         book['pages'] = new_value
@@ -802,7 +937,7 @@ async def edit_book(ctx, old_title: str, field: str = None, *, value: str = None
         await ctx.send(f"✏️ Updated series of '{book['title']}' from '{old_value}' to '{new_value}'! 🧸✨")
         
     elif field == "summary":
-        old_value = book.get('summary', 'Not set')[:50] + "..."
+        old_value = book.get('summary', 'Not set')[:50] + "..." if book.get('summary') else 'Not set'
         book['summary'] = new_value
         await ctx.send(f"✏️ Updated summary of '{book['title']}'! 🧸✨")
         
@@ -850,8 +985,11 @@ async def edit_book(ctx, old_title: str, field: str = None, *, value: str = None
         await ctx.send("❌ Failed to save changes. Please check file permissions. 💔")
 
 @bot.command()
-async def add_genre(ctx, title: str, *, genre: str):
-    """Add a genre to a book in YOUR list"""
+async def add_genre(ctx, *, args: str):
+    """Add a genre to a book.
+    Usage: *add_genre Book Title | Genre
+    Example: *add_genre The Hobbit | Fantasy"""
+    
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -859,7 +997,16 @@ async def add_genre(ctx, title: str, *, genre: str):
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
-    matches = [b for b in books if title.lower() == b['title'].lower()]
+    parts = [p.strip() for p in args.split('|')]
+    
+    if len(parts) < 2:
+        await ctx.send("🧸📚 Invalid format! Use: *add_genre Book Title | Genre 💔")
+        return
+    
+    title = parts[0]
+    genre = parts[1]
+    
+    matches = [b for b in books if b['title'].lower() == title.lower()]
     if not matches:
         await ctx.send(f"🧸📚 Couldn't find '{title}' in your list. 💔")
         return
@@ -878,8 +1025,11 @@ async def add_genre(ctx, title: str, *, genre: str):
         await ctx.send("❌ Failed to save changes. 💔")
 
 @bot.command()
-async def remove_genre(ctx, title: str, *, genre: str):
-    """Remove a genre from a book in YOUR list"""
+async def remove_genre(ctx, *, args: str):
+    """Remove a genre from a book.
+    Usage: *remove_genre Book Title | Genre
+    Example: *remove_genre The Hobbit | Fantasy"""
+    
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -887,7 +1037,16 @@ async def remove_genre(ctx, title: str, *, genre: str):
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
-    matches = [b for b in books if title.lower() == b['title'].lower()]
+    parts = [p.strip() for p in args.split('|')]
+    
+    if len(parts) < 2:
+        await ctx.send("🧸📚 Invalid format! Use: *remove_genre Book Title | Genre 💔")
+        return
+    
+    title = parts[0]
+    genre = parts[1]
+    
+    matches = [b for b in books if b['title'].lower() == title.lower()]
     if not matches:
         await ctx.send(f"🧸📚 Couldn't find '{title}' in your list. 💔")
         return
@@ -907,8 +1066,11 @@ async def remove_genre(ctx, title: str, *, genre: str):
         await ctx.send("❌ Failed to save changes. 💔")
 
 @bot.command()
-async def add_mood(ctx, title: str, *, mood: str):
-    """Add a mood to a book in YOUR list"""
+async def add_mood(ctx, *, args: str):
+    """Add a mood to a book.
+    Usage: *add_mood Book Title | Mood
+    Example: *add_mood The Hobbit | Adventurous"""
+    
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -916,7 +1078,16 @@ async def add_mood(ctx, title: str, *, mood: str):
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
-    matches = [b for b in books if title.lower() == b['title'].lower()]
+    parts = [p.strip() for p in args.split('|')]
+    
+    if len(parts) < 2:
+        await ctx.send("🧸📚 Invalid format! Use: *add_mood Book Title | Mood 💔")
+        return
+    
+    title = parts[0]
+    mood = parts[1]
+    
+    matches = [b for b in books if b['title'].lower() == title.lower()]
     if not matches:
         await ctx.send(f"🧸📚 Couldn't find '{title}' in your list. 💔")
         return
@@ -935,8 +1106,11 @@ async def add_mood(ctx, title: str, *, mood: str):
         await ctx.send("❌ Failed to save changes. 💔")
 
 @bot.command()
-async def remove_mood(ctx, title: str, *, mood: str):
-    """Remove a mood from a book in YOUR list"""
+async def remove_mood(ctx, *, args: str):
+    """Remove a mood from a book.
+    Usage: *remove_mood Book Title | Mood
+    Example: *remove_mood The Hobbit | Adventurous"""
+    
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -944,7 +1118,16 @@ async def remove_mood(ctx, title: str, *, mood: str):
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
-    matches = [b for b in books if title.lower() == b['title'].lower()]
+    parts = [p.strip() for p in args.split('|')]
+    
+    if len(parts) < 2:
+        await ctx.send("🧸📚 Invalid format! Use: *remove_mood Book Title | Mood 💔")
+        return
+    
+    title = parts[0]
+    mood = parts[1]
+    
+    matches = [b for b in books if b['title'].lower() == title.lower()]
     if not matches:
         await ctx.send(f"🧸📚 Couldn't find '{title}' in your list. 💔")
         return
@@ -1007,6 +1190,52 @@ async def library_stats(ctx):
     embed.set_footer(text="Button loves helping you find your next read! 🧸")
     
     await ctx.send(embed=embed)
+
+@bot.command()
+async def summary(ctx, *, title: str):
+    """Get the full summary of a specific book without truncation.
+    Usage: *summary Book Title"""
+    
+    user_id = ctx.author.id
+    books = get_book_list_for_user(ctx)
+    
+    if books is None:
+        await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
+        return
+    
+    results = [b for b in books if b['title'].lower() == title.lower()]
+    
+    if not results:
+        await ctx.send(f"🧸📚 Couldn't find '{title}' in your list. 💔")
+        return
+    
+    book = results[0]
+    
+    if not book.get('summary'):
+        await ctx.send(f"📝 No summary available for '{book['title']}'. 🧸")
+        return
+    
+    # Split the summary into chunks of max 1000 characters
+    summary_chunks = split_long_text(book['summary'], 950)
+    
+    # Send the first chunk with book info
+    embed = discord.Embed(
+        title=f"📝 Full Summary: {book['title']}",
+        description=f"**Author:** {book['author']}",
+        color=discord.Color.blue()
+    )
+    
+    if len(summary_chunks) == 1:
+        embed.add_field(name="Summary", value=summary_chunks[0], inline=False)
+        await ctx.send(embed=embed)
+    else:
+        # Send the first chunk as an embed
+        embed.add_field(name=f"Summary (Part 1/{len(summary_chunks)})", value=summary_chunks[0], inline=False)
+        await ctx.send(embed=embed)
+        
+        # Send the rest as separate messages
+        for i, chunk in enumerate(summary_chunks[1:], start=2):
+            await ctx.send(f"**Part {i}/{len(summary_chunks)}:**\n{chunk}")
 
 @bot.command()
 async def recommendmood(ctx, *, mood):
@@ -1309,59 +1538,420 @@ async def length_stats(ctx):
     embed.set_footer(text="🧸 Button loves helping you find the perfect book length! 🧸")
     await ctx.send(embed=embed)
 
+@bot.command()
+async def compare_lists(ctx, user1: discord.Member = None, user2: discord.Member = None):
+    """Compare two users' book lists and find common interests.
+    Usage: *compare_lists @User1 @User2
+    If no users are mentioned, compares you with a random user."""
+    
+    if user1 is None or user2 is None:
+        # If only one user is mentioned, compare with a random user
+        if user1 is not None and user2 is None:
+            # Find another user with a book list
+            other_users = [uid for uid in USER_BOOK_FILES.keys() if uid != user1.id]
+            if other_users:
+                random_user_id = random.choice(other_users)
+                random_user = await bot.fetch_user(random_user_id)
+                user2 = user1
+                user1 = random_user
+                await ctx.send(f"🧸 Comparing {user1.display_name}'s list with {user2.display_name}'s list!")
+            else:
+                await ctx.send("🧸 Not enough users with book lists to compare! 💔")
+                return
+        else:
+            await ctx.send("🧸 Please mention two users to compare lists! Example: *compare_lists @UserA @UserB 💔")
+            return
+    
+    # Check if both users have book lists
+    if user1.id not in USER_BOOK_FILES:
+        await ctx.send(f"🧸 {user1.display_name} doesn't have a book list set up! 💔")
+        return
+    if user2.id not in USER_BOOK_FILES:
+        await ctx.send(f"🧸 {user2.display_name} doesn't have a book list set up! 💔")
+        return
+    
+    # Get both users' books
+    books1 = get_user_books(user1.id)
+    books2 = get_user_books(user2.id)
+    
+    if not books1:
+        await ctx.send(f"🧸 {user1.display_name}'s book list is empty! 💔")
+        return
+    if not books2:
+        await ctx.send(f"🧸 {user2.display_name}'s book list is empty! 💔")
+        return
+    
+    # Find common books by title (case insensitive)
+    titles1 = {b['title'].lower(): b for b in books1}
+    titles2 = {b['title'].lower(): b for b in books2}
+    
+    common_titles = set(titles1.keys()) & set(titles2.keys())
+    common_books = [titles1[title] for title in common_titles]
+    
+    # Find common authors
+    authors1 = set(b['author'].lower() for b in books1)
+    authors2 = set(b['author'].lower() for b in books2)
+    common_authors = authors1 & authors2
+    
+    # Find common genres
+    genres1 = set()
+    genres2 = set()
+    for book in books1:
+        genres1.update([tag.replace('genre: ', '').lower() for tag in book.get('tags', []) if tag.startswith('genre:')])
+    for book in books2:
+        genres2.update([tag.replace('genre: ', '').lower() for tag in book.get('tags', []) if tag.startswith('genre:')])
+    common_genres = genres1 & genres2
+    
+    # Find common moods
+    moods1 = set()
+    moods2 = set()
+    for book in books1:
+        moods1.update([tag.replace('mood: ', '').lower() for tag in book.get('tags', []) if tag.startswith('mood:')])
+    for book in books2:
+        moods2.update([tag.replace('mood: ', '').lower() for tag in book.get('tags', []) if tag.startswith('mood:')])
+    common_moods = moods1 & moods2
+    
+    # Create comparison embed
+    embed = discord.Embed(
+        title="📚 Book List Comparison",
+        description=f"Comparing **{user1.display_name}** and **{user2.display_name}**'s reading interests!",
+        color=discord.Color.gold()
+    )
+    
+    embed.add_field(
+        name=f"📖 {user1.display_name}'s Books",
+        value=str(len(books1)),
+        inline=True
+    )
+    embed.add_field(
+        name=f"📖 {user2.display_name}'s Books",
+        value=str(len(books2)),
+        inline=True
+    )
+    embed.add_field(
+        name="📚 Common Books",
+        value=f"{len(common_books)} books",
+        inline=True
+    )
+    
+    if common_authors:
+        author_list = list(common_authors)[:5]
+        embed.add_field(
+            name="✍️ Common Authors",
+            value="\n".join([f"• {a.title()}" for a in author_list]) + (f"\n*and {len(common_authors)-5} more*" if len(common_authors) > 5 else ""),
+            inline=False
+        )
+    
+    if common_genres:
+        genre_list = list(common_genres)[:5]
+        embed.add_field(
+            name="🎭 Common Genres",
+            value="\n".join([f"• {g.title()}" for g in genre_list]) + (f"\n*and {len(common_genres)-5} more*" if len(common_genres) > 5 else ""),
+            inline=False
+        )
+    
+    if common_moods:
+        mood_list = list(common_moods)[:5]
+        embed.add_field(
+            name="💭 Common Moods",
+            value="\n".join([f"• {m.title()}" for m in mood_list]) + (f"\n*and {len(common_moods)-5} more*" if len(common_moods) > 5 else ""),
+            inline=False
+        )
+    
+    if common_books:
+        # Show some common books
+        common_list = common_books[:5]
+        book_list = []
+        for book in common_list:
+            book_list.append(f"• {book['title']} — {book['author']}")
+        embed.add_field(
+            name="📚 Common Books (sample)",
+            value="\n".join(book_list) + (f"\n*and {len(common_books)-5} more*" if len(common_books) > 5 else ""),
+            inline=False
+        )
+    
+    embed.set_footer(text=f"🧸 Button loves bringing readers together!")
+    
+    await ctx.send(embed=embed)
+    
+    # Offer recommendations based on common interests
+    if common_books or common_genres or common_authors:
+        await asyncio.sleep(1)  # Brief pause
+        await ctx.send(f"🧸 Since you have common interests, would you like a recommendation? Use `*rec_common @{user1.display_name} @{user2.display_name}`!")
 
+@bot.command()
+async def rec_common(ctx, user1: discord.Member = None, user2: discord.Member = None):
+    """Get a book recommendation based on two users' common interests.
+    Usage: *rec_common @User1 @User2"""
+    
+    if user1 is None or user2 is None:
+        await ctx.send("🧸 Please mention two users! Example: *rec_common @UserA @UserB 💔")
+        return
+    
+    # Check if both users have book lists
+    if user1.id not in USER_BOOK_FILES:
+        await ctx.send(f"🧸 {user1.display_name} doesn't have a book list set up! 💔")
+        return
+    if user2.id not in USER_BOOK_FILES:
+        await ctx.send(f"🧸 {user2.display_name} doesn't have a book list set up! 💔")
+        return
+    
+    books1 = get_user_books(user1.id)
+    books2 = get_user_books(user2.id)
+    
+    if not books1 or not books2:
+        await ctx.send("🧸 One of the users has an empty book list! 💔")
+        return
+    
+    # Find common interests
+    titles1 = {b['title'].lower(): b for b in books1}
+    titles2 = {b['title'].lower(): b for b in books2}
+    common_titles = set(titles1.keys()) & set(titles2.keys())
+    common_books = [titles1[title] for title in common_titles]
+    
+    # Get common authors
+    authors1 = set(b['author'].lower() for b in books1)
+    authors2 = set(b['author'].lower() for b in books2)
+    common_authors = authors1 & authors2
+    
+    # Get common genres
+    genres1 = set()
+    genres2 = set()
+    for book in books1:
+        genres1.update([tag.replace('genre: ', '').lower() for tag in book.get('tags', []) if tag.startswith('genre:')])
+    for book in books2:
+        genres2.update([tag.replace('genre: ', '').lower() for tag in book.get('tags', []) if tag.startswith('genre:')])
+    common_genres = genres1 & genres2
+    
+    # Create a combined list of recommended books
+    recommended = []
+    
+    # 1. Books that both users have (already common)
+    recommended.extend(common_books)
+    
+    # 2. Books from user1 that match user2's interests
+    if common_genres:
+        for book in books1:
+            book_genres = [tag.replace('genre: ', '').lower() for tag in book.get('tags', []) if tag.startswith('genre:')]
+            if any(g in common_genres for g in book_genres) and book not in recommended:
+                recommended.append(book)
+    
+    # 3. Books from user2 that match user1's interests
+    if common_genres:
+        for book in books2:
+            book_genres = [tag.replace('genre: ', '').lower() for tag in book.get('tags', []) if tag.startswith('genre:')]
+            if any(g in common_genres for g in book_genres) and book not in recommended:
+                recommended.append(book)
+    
+    # 4. Books by common authors
+    if common_authors:
+        for book in books1:
+            if book['author'].lower() in common_authors and book not in recommended:
+                recommended.append(book)
+        for book in books2:
+            if book['author'].lower() in common_authors and book not in recommended:
+                recommended.append(book)
+    
+    if not recommended:
+        await ctx.send(f"🧸 No common interests found between {user1.display_name} and {user2.display_name}! 💔")
+        return
+    
+    # Pick a random book from the recommendations
+    recommended_book = random.choice(recommended)
+    
+    embed = discord.Embed(
+        title="🧸📚 Button's Collaborative Recommendation!",
+        description=f"Based on the shared interests of **{user1.display_name}** and **{user2.display_name}**...",
+        color=discord.Color.gold()
+    )
+    
+    embed.add_field(name="📖 Book", value=recommended_book['title'], inline=False)
+    embed.add_field(name="✍️ Author", value=recommended_book['author'], inline=True)
+    
+    if recommended_book.get('pages') and recommended_book['pages'].isdigit():
+        embed.add_field(name="📄 Pages", value=recommended_book['pages'], inline=True)
+    
+    # Show genres and moods
+    genres = [tag.replace('genre: ', '') for tag in recommended_book.get('tags', []) if tag.startswith('genre:')]
+    moods = [tag.replace('mood: ', '') for tag in recommended_book.get('tags', []) if tag.startswith('mood:')]
+    
+    if genres:
+        embed.add_field(name="🎭 Genres", value=', '.join(genres), inline=False)
+    if moods:
+        embed.add_field(name="💭 Moods", value=', '.join(moods), inline=False)
+    
+    # Add summary
+    if recommended_book.get('summary'):
+        summary = recommended_book['summary'][:300] + "..." if len(recommended_book['summary']) > 300 else recommended_book['summary']
+        embed.add_field(name="📝 Summary", value=summary, inline=False)
+    
+    # Show whose list it came from
+    if recommended_book in common_books:
+        embed.set_footer(text=f"📚 This book is on both {user1.display_name} and {user2.display_name}'s lists!")
+    elif recommended_book in books1:
+        embed.set_footer(text=f"📚 This book is from {user1.display_name}'s list")
+    elif recommended_book in books2:
+        embed.set_footer(text=f"📚 This book is from {user2.display_name}'s list")
+    
+    await ctx.send(embed=embed)
 
+@bot.command()
+async def random_user(ctx):
+    """Get a random user's book list to explore."""
+    users_with_lists = [uid for uid in USER_BOOK_FILES.keys()]
+    
+    if not users_with_lists:
+        await ctx.send("🧸 No users have book lists set up yet! 💔")
+        return
+    
+    random_user_id = random.choice(users_with_lists)
+    random_user = await bot.fetch_user(random_user_id)
+    
+    # Get their books
+    books = get_user_books(random_user_id)
+    
+    embed = discord.Embed(
+        title=f"🧸 Random User: {random_user.display_name}",
+        description=f"Check out {random_user.display_name}'s reading list!",
+        color=discord.Color.blue()
+    )
+    
+    embed.add_field(name="📚 Total Books", value=str(len(books)), inline=True)
+    
+    # Count genres
+    genres = set()
+    for book in books:
+        genres.update([tag.replace('genre: ', '') for tag in book.get('tags', []) if tag.startswith('genre:')])
+    embed.add_field(name="🎭 Genres", value=str(len(genres)), inline=True)
+    
+    # Show a random book from their list
+    if books:
+        random_book = random.choice(books)
+        embed.add_field(
+            name="📖 Random Book from Their List",
+            value=f"**{random_book['title']}** — *{random_book['author']}*",
+            inline=False
+        )
+    
+    embed.set_footer(text="🧸 Use *compare_lists to compare your list with theirs!")
+    
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def common_interests(ctx, user: discord.Member = None):
+    """See what you have in common with another user.
+    Usage: *common_interests @User"""
+    
+    if user is None:
+        await ctx.send("🧸 Please mention a user! Example: *common_interests @UserA 💔")
+        return
+    
+    if user.id == ctx.author.id:
+        await ctx.send("🧸 You can't compare with yourself! Try *compare_lists @UserA @UserB instead. 💔")
+        return
+    
+    # Check if both users have book lists
+    if ctx.author.id not in USER_BOOK_FILES:
+        await ctx.send(f"🧸 You don't have a book list set up yet! 💔")
+        return
+    if user.id not in USER_BOOK_FILES:
+        await ctx.send(f"🧸 {user.display_name} doesn't have a book list set up! 💔")
+        return
+    
+    await compare_lists(ctx, ctx.author, user)
+
+@bot.command()
+async def book_help(ctx):
+    """Show all book-related commands"""
+    message = (
+        "🧸📚 **Book Commands Help**\n\n"
+        
+        "📚 **Your Personal Book Management**\n"
+        "`*mybooks` - Check if you have a book list\n"
+        "`*recommend` - Get a random book from your list\n"
+        "`*list_books [page]` - List your books alphabetically with interactive pagination\n"
+        "`*search_book <title>` - Search your books by title\n"
+        "`*book_info <title>` - Get full info about a book\n"
+        "`*summary <title>` - Get the full summary of a book\n\n"
+        
+        "✏️ **Adding & Editing Books**\n"
+        "`*add_book Title | Author | Pages | Series` - Add a book to your list\n"
+        "  • Example: `*add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth`\n"
+        "  • Only the title is required\n"
+        "`*remove_book <title>` - Remove a book from your list\n"
+        "`*edit_book Old Title | field | new value` - Edit a book\n"
+        "  • Example: `*edit_book The Hobbit | pages | 310`\n"
+        "  • Use `*edit_book Title | help` to see all editable fields\n"
+        "`*add_genre Book Title | Genre` - Add a genre to a book\n"
+        "`*remove_genre Book Title | Genre` - Remove a genre from a book\n"
+        "`*add_mood Book Title | Mood` - Add a mood to a book\n"
+        "`*remove_mood Book Title | Mood` - Remove a mood from a book\n\n"
+        
+        "📊 **Library Statistics**\n"
+        "`*library_stats` - Get stats for your library\n"
+        "`*length_stats` - Get length statistics for your library\n"
+        "`*list_genres` - List all genres in your library\n"
+        "`*list_moods` - List all moods in your library\n"
+        "`*list_length <short|medium|long>` - List books by length\n\n"
+        
+        "🎯 **Smart Recommendations**\n"
+        "`*recommendmood <mood>` - Recommend a book by mood\n"
+        "  • Example: `*recommendmood dark`\n"
+        "`*recommendgenre <genre>` - Recommend a book by genre\n"
+        "  • Example: `*recommendgenre fantasy`\n"
+        "`*recommendlength <short|medium|long>` - Recommend a book by length\n"
+        "  • Example: `*recommendlength short`\n\n"
+        
+        "👥 **Social Book Features**\n"
+        "`*compare_lists @UserA @UserB` - Compare two users' book lists\n"
+        "  • Shows common books, authors, genres, and moods\n"
+        "`*rec_common @UserA @UserB` - Get a recommendation based on common interests\n"
+        "`*common_interests @User` - See what you have in common with another user\n"
+        "`*random_user` - Explore a random user's book list\n\n"
+        
+        "🔄 **Other**\n"
+        "`*refresh_books` - Reload your book data from the JSON file\n\n"
+        
+        "💡 **Tips:**\n"
+        "• Use `|` as a separator for commands with multiple fields\n"
+        "• Example: `*add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth`\n"
+        "• Only the title is required when adding a book\n"
+        "• Use `*edit_book Title | help` to see all editable fields\n"
+        "• You can only edit your own books"
+    )
+    
+    await ctx.send(message)
 @bot.command()
 async def commands(ctx):
     message = (
         "🧸 **Button's Commands** 🧸\n\n"
-
+        
         "💗 **Cozy & Social**\n"
         "*hug [@user] - Send a virtual hug to someone or receive one from Button\n"
         "*goodmorning [@user] - Send a good morning message to someone or receive one from Button\n"
         "*goodnight [@user] - Send a goodnight message to someone or receive one from Button\n\n"
-
+        
         "🌙 **Daily & Mood**\n"
         "*mood - Check Button's mood for the day\n"
         "*mystery - Discover Button's mystery of the day\n"
         "*dream - Check what Button is dreaming about\n"
         "*drink - Learn what kind of beverage Button is drinking\n\n"
-
+        
         "🎂 **Birthdays**\n"
         "*birthday [@user] - Check a birthday\n"
         "*add_birthday [@user] [DD/MM] - Add a birthday (admin only)\n"
         "*edit_birthday [@user] [DD/MM] - Edit a birthday (admin only)\n"
         "*remove_birthday [@user] - Remove a birthday (admin only)\n"
         "*list_birthdays - List all birthdays\n\n"
-
-        "📚 **Book Management**\n"
-        "*mybooks - Check if you have a book list\n"
-        "*recommend - Get a random book from your list\n"
-        "*list_books [page] - List your books alphabetically\n"
-        "*search_book <title> - Search your books\n"
-        "*book_info <title> - Get full info about a book\n"
-        "*add_book <title> [author] - Add a book to your list\n"
-        "*remove_book <title> - Remove a book from your list\n"
-        "*edit_book <old_title> <field> <new_value> - Edit a book\n"
-        "*add_genre <title> <genre> - Add a genre to a book\n"
-        "*remove_genre <title> <genre> - Remove a genre\n"
-        "*add_mood <title> <mood> - Add a mood to a book\n"
-        "*remove_mood <title> <mood> - Remove a mood\n"
-        "*library_stats - Get stats for your library\n"
-        "*recommendmood <mood> - Recommend by mood\n"
-        "*recommendgenre <genre> - Recommend by genre\n"
-        "*list_genres - List your genres\n"
-        "*list_moods - List your moods\n\n"
-        "*recommendlength <short|medium|long> - Recommend by length\n"
-        "*list_length <short|medium|long> - List books by length\n"
-        "*length_stats - Get length statistics\n"
-        "*refresh_books - Reload your book data\n\n"
-
-        "📖 **Info**\n"
-        "*commands - Show this list\n"
-    )
-
-    await ctx.send(message)
+        
+        "📚 **Button's Library**\n"
+        "*book_help - Show all book-related commands\n"
+        
+        "📖 **Help**\n"
+        "*commands - Show this list\n\n"
     
+    )
+    
+    await ctx.send(message)    
 keep_alive()
 bot.run(os.getenv("TOKEN"))

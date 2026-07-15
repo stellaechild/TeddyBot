@@ -337,6 +337,7 @@ for i, book in enumerate(books):
         "pages": book["number_of_pages"],
         "tags": enhanced_tags,
         "summary": summary,
+        "isbn": book["isbn"]
     })
     
     time.sleep(0.8)
