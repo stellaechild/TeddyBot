@@ -263,7 +263,7 @@ def extract_tags_from_csv(row):
 print("📚 Reading your Goodreads export...")
 
 books = []
-total_books = 0
+num_books = 0
 to_read_books = 0
 
 # Read CSV and filter for "to-read" shelf
@@ -271,14 +271,12 @@ with open(f"goodreads_{USER}library_export.csv", newline='', encoding="utf-8") a
     reader = csv.DictReader(f)
     
     for row in reader:
-        total_books += 1
-        
-        # ONLY process books from "to-read" shelf
-        if row["Exclusive Shelf"] == "to-read":
+        num_books += 1
+        if row["Exclusive Shelf"]=="to-read":
             to_read_books += 1
-            original_title = row["Title"].strip()
-            
-            books.append({
+
+        original_title = row["Title"].strip()
+        books.append({
                 "title": original_title,
                 "search_title": clean_series_title(original_title),
                 "series": extract_series(original_title),
@@ -288,7 +286,7 @@ with open(f"goodreads_{USER}library_export.csv", newline='', encoding="utf-8") a
                 "csv_row": row
             })
 
-print(f"📊 Found {total_books} total books in your export")
+print(f"📊 Found {num_books} total books in your export")
 print(f"📖 Found {to_read_books} books on your 'to-read' shelf")
 print(f"🔄 Starting enrichment process...\n")
 
@@ -337,7 +335,8 @@ for i, book in enumerate(books):
         "pages": book["number_of_pages"],
         "tags": enhanced_tags,
         "summary": summary,
-        "isbn": book["isbn"]
+        "isbn": book["isbn"],
+        "status": book["csv_row"]["Exclusive Shelf"]  # Keep the original shelf status
     })
     
     time.sleep(0.8)

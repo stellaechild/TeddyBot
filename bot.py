@@ -28,6 +28,7 @@ USERD = int(os.getenv("USERD"))
 USERE = int(os.getenv("USERE"))
 
 # Map user IDs to their JSON files
+
 USER_BOOK_FILES = {
     USERA: "./userA_books_enriched.json",
     USERB: "./userB_books_enriched.json",
@@ -188,6 +189,24 @@ def get_user_books(user_id):
     except json.JSONDecodeError:
         print(f"Invalid JSON in {filename}!")
         return []
+    
+def get_user_toread_books(user_id):
+    """Get only the 'to-read' books for a specific user"""
+    all_books = get_user_books(user_id)
+    to_read_books = [book for book in all_books if book.get('status') == 'to-read']
+    return to_read_books
+
+def get_user_books_by_status(user_id, status=None):
+    """Get books for a specific user filtered by status"""
+    if status is not None and status.lower() not in ['to-read', 'reading', 'read']:
+        return []  # Invalid status
+    
+    books = get_user_books(user_id)
+    if status is None:
+        return books
+    
+    # Get all books with the specified status (case insensitive)
+    return [b for b in books if b.get('status', '').lower() == status.lower()]
 
 def save_user_books(user_id, books):
     """Save books for a specific user to their JSON file"""
@@ -257,14 +276,18 @@ def get_length_emoji(pages):
 
 # Update the format_book_embed function
 def format_book_embed(book, title_prefix="", user_id=None):
-    """Format a book as a Discord embed with proper text handling"""
+    """Format a book as a Discord embed with length info and status"""
     embed = discord.Embed(
         title=f"{title_prefix}{book['title']}",
         color=discord.Color.blue()
     )
     
-    # Author and basic info
     embed.add_field(name="✍️ Author", value=book['author'], inline=True)
+    
+    # Add status
+    status = book.get('status', 'Unknown')
+    status_emoji = "📖" if status.lower() == 'to-read' else "✅" if status.lower() == 'read' else "🔄" if status.lower() == 'currently-reading' else "📒"
+    embed.add_field(name="📌 Status", value=f"{status_emoji} {status}", inline=True)
     
     # Add page length with category
     if book.get('pages') and book['pages'].isdigit():
@@ -291,7 +314,7 @@ def format_book_embed(book, title_prefix="", user_id=None):
     
     # Summary - properly truncated
     if book.get('summary'):
-        summary = truncate_summary(book['summary'], 950)  # Leave room for "Read more" indicator
+        summary = truncate_summary(book['summary'], 950)
         embed.add_field(name="📝 Summary", value=summary, inline=False)
     
     # Add user info
@@ -603,38 +626,98 @@ async def mybooks(ctx):
     
     if user_id in USER_BOOK_FILES:
         books = get_user_books(user_id)
-        await ctx.send(f"🧸📚 {ctx.author.mention}, you have {len(books)} books in your to-read list! ")
+        
+        # Count books by status
+        to_read = len([b for b in books if b.get('status', '').lower() == 'to-read'])
+        read = len([b for b in books if b.get('status', '').lower() == 'read'])
+        currently_reading = len([b for b in books if b.get('status', '').lower() == 'currently-reading'])
+        other = len(books) - to_read - read - currently_reading
+        
+        embed = discord.Embed(
+            title=f"🧸📚 {ctx.author.display_name}'s Library",
+            color=discord.Color.blue()
+        )
+        embed.add_field(name="📚 Total Books", value=str(len(books)), inline=True)
+        embed.add_field(name="📖 To-Read", value=str(to_read), inline=True)
+        embed.add_field(name="✅ Read", value=str(read), inline=True)
+        embed.add_field(name="🔄 Currently Reading", value=str(currently_reading), inline=True)
+        if other > 0:
+            embed.add_field(name="📒 Other", value=str(other), inline=True)
+        
+        await ctx.send(embed=embed)
     else:
         await ctx.send(f"🧸📚 {ctx.author.mention}, you don't have a book list set up yet. Please contact an admin. ")
 
 @bot.command()
-async def recommend(ctx):
-    """Recommend a random book from YOUR to-read list"""
+async def recommend(ctx, status: str = None):
+    """Recommend a random book from your list.
+    Usage: *recommend [status]
+    Status options: to-read, read, currently-reading"""
+    
     books = get_book_list_for_user(ctx)
     if books is None:
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
+    # Filter by status if provided
+    if status:
+        status = status.lower()
+        filtered_books = [b for b in books if b.get('status', '').lower() == status]
+        if not filtered_books:
+            await ctx.send(f"🧸📚 You don't have any books with status '{status}'! 💔")
+            return
+        books = filtered_books
+    
     if not books:
-        await ctx.send("🧸📚 *sniff sniff* Button can't find any books in your to-read list! 💔")
+        await ctx.send("🧸📚 *sniff sniff* Button can't find any books in your list! 💔")
         return
     
     book = random.choice(books)
-    embed = format_book_embed(book, "🧸📚 Button has thought very hard about this and she recommends: ", ctx.author.id)
-    embed.set_footer(text=f"Book #{books.index(book) + 1} of {len(books)} in your list")
+    
+    # Show status in the embed
+    status_display = book.get('status', 'Unknown')
+    if status_display == 'to-read':
+        status_emoji = "📖"
+    elif status_display == 'read':
+        status_emoji = "✅"
+    elif status_display == 'currently-reading':
+        status_emoji = "🔄"
+    else:
+        status_emoji = "📒"
+    
+    embed = format_book_embed(book, f"🧸📚 Button recommends: ", ctx.author.id)
+    embed.add_field(name="📌 Status", value=f"{status_emoji} {status_display}", inline=False)
     await ctx.send(embed=embed)
 
-@bot.command(aliases=['list'])
-async def list_books(ctx, page: int = 1):
-    """List YOUR books alphabetically (numbered) with interactive pagination"""
+@bot.command()
+async def list_books(ctx, status: str = None, page: int = 1):
+    """List YOUR books alphabetically (numbered) with optional status filter.
+    Usage: *list_books [status] [page]
+    Status options: to-read, read, currently-reading"""
+    
     books = get_book_list_for_user(ctx)
     if books is None:
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
     if not books:
-        await ctx.send("🧸📚 Button can't find any books in your to-read list! 💔")
+        await ctx.send("🧸📚 Button can't find any books in your list! 💔")
         return
+    
+    # Filter by status if provided
+    if status and status.lower() in ['to-read', 'read', 'currently-reading']:
+        status = status.lower()
+        filtered_books = [b for b in books if b.get('status', '').lower() == status]
+        if not filtered_books:
+            await ctx.send(f"🧸📚 You don't have any books with status '{status}'! 💔")
+            return
+        books = filtered_books
+        status_display = status
+    else:
+        # If status is provided but invalid, treat it as page number
+        if status and status.isdigit():
+            page = int(status)
+        status_display = "All"
     
     # Sort alphabetically by title
     sorted_books = sorted(books, key=lambda x: x['title'].lower())
@@ -653,10 +736,12 @@ async def list_books(ctx, page: int = 1):
     # Create the list
     book_list = []
     for i, book in enumerate(sorted_books[start:end], start=start+1):
-        book_list.append(format_book_list(book, i))
+        # Add status emoji to the list
+        status_emoji = "📖" if book.get('status', '').lower() == 'to-read' else "✅" if book.get('status', '').lower() == 'read' else "🔄"
+        book_list.append(f"`{i}.` {status_emoji} **{book['title']}** — *{book['author']}*")
     
     embed = discord.Embed(
-        title=f"🧸📚 {ctx.author.display_name}'s To-Read Books (Page {page}/{total_pages})",
+        title=f"🧸📚 {ctx.author.display_name}'s Books ({status_display}) (Page {page}/{total_pages})",
         description="\n".join(book_list) if book_list else "No books on this page.",
         color=discord.Color.blue()
     )
@@ -744,15 +829,11 @@ async def book_info(ctx, *, title: str):
 
 @bot.command()
 async def add_book(ctx, *, args: str):
-    """Add a book to YOUR to-read list.
-    Usage: *add_book Title | Author | Pages | Series
-    Example: *add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth
-    Only Title is required, everything else is optional."""
+    """Add a book to YOUR list.
+    Usage: *add_book Title | Author | Pages | Series | Status
+    Status options: to-read, read, currently-reading
+    Example: *add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth | to-read"""
     
-    if args is None or args == "":
-        await ctx.send("🧸📚 Please provide book details. Usage: *add_book Title | Author | Pages | Series 💔")
-        return
-
     user_id = ctx.author.id
     
     if user_id not in USER_BOOK_FILES:
@@ -767,8 +848,8 @@ async def add_book(ctx, *, args: str):
     # First part is always the title
     title = parts[0] if parts else None
     
-    if title is None or title == "":
-        await ctx.send("🧸📚 You need to at least provide a title! Usage: *add_book Title | Author | Pages | Series 💔")
+    if not title:
+        await ctx.send("🧸📚 You need to at least provide a title! Usage: *add_book Title | Author | Pages | Series | Status 💔")
         return
     
     # Check if book already exists
@@ -781,6 +862,11 @@ async def add_book(ctx, *, args: str):
     author = parts[1] if len(parts) > 1 and parts[1] else "Unknown"
     pages = parts[2] if len(parts) > 2 and parts[2] else ""
     series = parts[3] if len(parts) > 3 and parts[3] else None
+    status = parts[4] if len(parts) > 4 and parts[4] else "to-read"
+    
+    # Validate status
+    if status.lower() not in ['to-read', 'read', 'currently-reading']:
+        status = 'to-read'
     
     # Create new book entry
     new_book = {
@@ -789,12 +875,14 @@ async def add_book(ctx, *, args: str):
         "author": author,
         "pages": pages,
         "tags": [],
-        "summary": ""
+        "summary": "",
+        "status": status.lower()
     }
     
     books.append(new_book)
     if save_user_books(user_id, books):
-        await ctx.send(f"🧸📚 Added '{title}' by {author} to your to-read list! 📖")
+        status_emoji = "📖" if status == 'to-read' else "✅" if status == 'read' else "🔄"
+        await ctx.send(f"🧸📚 Added '{title}' by {author} to your list! {status_emoji}")
         if pages:
             await ctx.send(f"📄 Pages: {pages}")
         if series:
@@ -850,20 +938,14 @@ async def remove_book(ctx, *, title: str):
 async def edit_book(ctx, *, args: str):
     """Edit a book in YOUR list.
     Usage: *edit_book Old Title | field | new value
-    Fields: title, author, pages, series, summary, genre, mood, tags
+    Fields: title, author, pages, series, summary, genre, mood, tags, status
     
     Examples:
     *edit_book The Hobbit | title | The Hobbit: An Unexpected Journey
     *edit_book The Hobbit | author | J.R.R. Tolkien
     *edit_book The Hobbit | pages | 310
-    *edit_book The Hobbit | series | Middle Earth
-    *edit_book The Hobbit | genre | Fantasy, Adventure
-    *edit_book The Hobbit | mood | Adventurous, Whimsical"""
+    *edit_book The Hobbit | status | read"""
     
-    if args is None or args == "":
-        await ctx.send("🧸📚 Please provide book details. Usage: *edit_book Old Title | field | new value 💔")
-        return
-
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -902,6 +984,7 @@ async def edit_book(ctx, *, args: str):
         embed.add_field(name="Author", value=book['author'], inline=False)
         embed.add_field(name="Pages", value=book.get('pages', 'Not set'), inline=False)
         embed.add_field(name="Series", value=book.get('series', 'Not set'), inline=False)
+        embed.add_field(name="Status", value=book.get('status', 'Not set'), inline=False)
         embed.add_field(name="Summary", value=book.get('summary', 'Not set')[:200] + "..." if book.get('summary') else 'Not set', inline=False)
         
         genres = [tag.replace('genre: ', '') for tag in book.get('tags', []) if tag.startswith('genre:')]
@@ -915,6 +998,7 @@ async def edit_book(ctx, *, args: str):
                   "`*edit_book Old Title | author | New Author`\n"
                   "`*edit_book Old Title | pages | 123`\n"
                   "`*edit_book Old Title | series | Series Name`\n"
+                  "`*edit_book Old Title | status | read` (to-read, read, currently-reading)\n"
                   "`*edit_book Old Title | summary | New summary text`\n"
                   "`*edit_book Old Title | genre | Fantasy, Sci-Fi` (comma-separated)\n"
                   "`*edit_book Old Title | mood | Dark, Suspenseful` (comma-separated)\n"
@@ -924,6 +1008,7 @@ async def edit_book(ctx, *, args: str):
         await ctx.send(embed=embed)
         return
     
+    field = field.lower()
     old_value = None
     
     # Handle different fields
@@ -954,6 +1039,15 @@ async def edit_book(ctx, *, args: str):
         old_value = book.get('series', 'Not set')
         book['series'] = new_value if new_value else None
         await ctx.send(f"✏️ Updated series of '{book['title']}' from '{old_value}' to '{new_value}'! 🧸✨")
+        
+    elif field == "status":
+        old_value = book.get('status', 'Not set')
+        if new_value.lower() not in ['to-read', 'read', 'currently-reading']:
+            await ctx.send("❌ Invalid status! Use: `to-read`, `read`, or `currently-reading` 🧸")
+            return
+        book['status'] = new_value.lower()
+        status_emoji = "📖" if new_value == 'to-read' else "✅" if new_value == 'read' else "🔄"
+        await ctx.send(f"✏️ Updated status of '{book['title']}' from '{old_value}' to '{new_value}'! {status_emoji} 🧸✨")
         
     elif field == "summary":
         old_value = book.get('summary', 'Not set')[:50] + "..." if book.get('summary') else 'Not set'
@@ -994,7 +1088,7 @@ async def edit_book(ctx, *, args: str):
         await ctx.send(f"✏️ Updated tags of '{book['title']}'! 🧸✨")
         
     else:
-        await ctx.send(f"❌ Unknown field '{field}'. Available fields: title, author, pages, series, summary, genre, mood, tags 🧸")
+        await ctx.send(f"❌ Unknown field '{field}'. Available fields: title, author, pages, series, status, summary, genre, mood, tags 🧸")
         return
     
     # Save changes
@@ -1935,29 +2029,33 @@ async def commands(ctx):
     # Part 2: Book Management
     part2 = (
         "**📚 Your Personal Book Management**\n"
-        "\*mybooks - Check if you have a book list\n"
-        "\*recommend - Get a random book from your list\n"
-        "\*list_books [page] - List your books alphabetically with interactive pagination\n"
+        "\*mybooks - Check your library stats (total, to-read, read, currently-reading)\n"
+        "\*recommend [status] - Get a random book from your list (optional: to-read, read, currently-reading)\n"
+        "\*list_books [status] [page] - List your books with optional status filter\n"
         "\*search_book <title> - Search your books by title\n"
         "\*book_info <title> - Get full info about a book\n"
         "\*summary <title> - Get the full summary of a book\n\n"
         
         "**✏️ Adding & Editing Books**\n"
-        "\*add_book Title | Author | Pages | Series - Add a book\n"
-        "  • Example: \*add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth\n"
+        "\*add_book Title | Author | Pages | Series | Status - Add a book to your list\n"
+        "  • Example: \*add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth | to-read\n"
+        "  • Status options: to-read, read, currently-reading\n"
         "  • Only the title is required\n"
-        "\*remove_book <title> - Remove a book\n"
+        "\*remove_book <title> - Remove a book from your list\n"
         "\*edit_book Old Title | field | new value - Edit a book\n"
         "  • Example: \*edit_book The Hobbit | pages | 310\n"
-        "\*add_genre Book Title | Genre - Add a genre\n"
-        "\*remove_genre Book Title | Genre - Remove a genre\n"
-        "\*add_mood Book Title | Mood - Add a mood\n"
-        "\*remove_mood Book Title | Mood - Remove a mood"
+        "  • Example: \*edit_book The Hobbit | status | read\n"
+        "  • Fields: title, author, pages, series, status, summary, genre, mood, tags\n"
+        "\*add_genre Book Title | Genre - Add a genre to a book\n"
+        "\*remove_genre Book Title | Genre - Remove a genre from a book\n"
+        "\*add_mood Book Title | Mood - Add a mood to a book\n"
+        "\*remove_mood Book Title | Mood - Remove a mood from a book\n\n"
     )
     
     # Part 3: Stats, Recommendations, Social
     part3 = (
-        "**📊 Library Statistics**\n"
+        
+        "\n\n**📊 Library Statistics**\n"
         "\*library_stats - Get stats for your library\n"
         "\*length_stats - Get length statistics\n"
         "\*list_genres - List all genres\n"
