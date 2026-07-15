@@ -672,6 +672,9 @@ async def list_books(ctx, page: int = 1):
 @bot.command(aliases=['find', 'lookup'])
 async def search_book(ctx, *, query):
     """Search for a book in YOUR list by title"""
+    if not query:
+        await ctx.send("🧸📚 Please provide a title to search for. 💔")
+        return
     books = get_book_list_for_user(ctx)
     if books is None:
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
@@ -705,6 +708,10 @@ async def book_info(ctx, *, title: str):
     """Get ALL information about a book including the full summary.
     Usage: *book_info Book Title"""
     
+    if not title:
+        await ctx.send("🧸📚 Please provide a book title. 💔")
+        return
+
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -742,6 +749,10 @@ async def add_book(ctx, *, args: str):
     Example: *add_book The Hobbit | J.R.R. Tolkien | 310 | Middle Earth
     Only Title is required, everything else is optional."""
     
+    if not args:
+        await ctx.send("🧸📚 Please provide book details. Usage: *add_book Title | Author | Pages | Series 💔")
+        return
+
     user_id = ctx.author.id
     
     if user_id not in USER_BOOK_FILES:
@@ -797,6 +808,10 @@ async def remove_book(ctx, *, title: str):
     Usage: *remove_book Title
     Example: *remove_book The Hobbit"""
     
+    if not title:
+        await ctx.send("🧸📚 Please provide a book title to remove. 💔")
+        return
+
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -845,6 +860,10 @@ async def edit_book(ctx, *, args: str):
     *edit_book The Hobbit | genre | Fantasy, Adventure
     *edit_book The Hobbit | mood | Adventurous, Whimsical"""
     
+    if not args:
+        await ctx.send("🧸📚 Please provide book details. Usage: *edit_book Old Title | field | new value 💔")
+        return
+
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -990,6 +1009,10 @@ async def add_genre(ctx, *, args: str):
     Usage: *add_genre Book Title | Genre
     Example: *add_genre The Hobbit | Fantasy"""
     
+    if not args:
+        await ctx.send("🧸📚 Please provide book details. Usage: *add_genre Book Title | Genre 💔")
+        return
+
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -1030,6 +1053,10 @@ async def remove_genre(ctx, *, args: str):
     Usage: *remove_genre Book Title | Genre
     Example: *remove_genre The Hobbit | Fantasy"""
     
+    if not args:
+        await ctx.send("🧸📚 Please provide book details. Usage: *remove_genre Book Title | Genre 💔")
+        return
+
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -1071,6 +1098,10 @@ async def add_mood(ctx, *, args: str):
     Usage: *add_mood Book Title | Mood
     Example: *add_mood The Hobbit | Adventurous"""
     
+    if not args:
+        await ctx.send("🧸📚 Please provide book details. Usage: *add_mood Book Title | Mood 💔")
+        return
+
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -1111,6 +1142,10 @@ async def remove_mood(ctx, *, args: str):
     Usage: *remove_mood Book Title | Mood
     Example: *remove_mood The Hobbit | Adventurous"""
     
+    if not args:
+        await ctx.send("🧸📚 Please provide book details. Usage: *remove_mood Book Title | Mood 💔")
+        return
+
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -1195,7 +1230,9 @@ async def library_stats(ctx):
 async def summary(ctx, *, title: str):
     """Get the full summary of a specific book without truncation.
     Usage: *summary Book Title"""
-    
+    if not title:
+        await ctx.send("🧸📚 Please provide a book title. 💔")
+        return
     user_id = ctx.author.id
     books = get_book_list_for_user(ctx)
     
@@ -1240,6 +1277,9 @@ async def summary(ctx, *, title: str):
 @bot.command()
 async def recommendmood(ctx, *, mood):
     """Recommend a book from YOUR list by mood (e.g., *recommend_by_mood dark)"""
+    if not mood:
+        await ctx.send("🧸📚 Please specify a mood. 💔")
+        return
     books = get_book_list_for_user(ctx)
     if books is None:
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
@@ -1263,6 +1303,9 @@ async def recommendmood(ctx, *, mood):
 @bot.command()
 async def recommendgenre(ctx, *, genre):
     """Recommend a book from YOUR list by genre (e.g., *recommend_by_genre fantasy)"""
+    if not genre:
+        await ctx.send("🧸📚 Please specify a genre. 💔")
+        return
     books = get_book_list_for_user(ctx)
     if books is None:
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
@@ -1356,6 +1399,9 @@ async def refresh_books(ctx):
 async def recommendlength(ctx, length: str):
     """Recommend a book by length (short, medium, long)
     Example: *recommend_by_length short"""
+    if not length:
+        await ctx.send("🧸📚 Please specify a length: short, medium, or long. 🧸")
+        return
     
     books = get_book_list_for_user(ctx)
     if books is None:
@@ -1390,6 +1436,10 @@ async def recommendlength(ctx, length: str):
 async def list_length(ctx, length: str):
     """List all books of a specific length (short, medium, long)
     Example: *list_by_length short"""
+    
+    if not length:
+        await ctx.send("🧸📚 Please specify a length: short, medium, or long 🧸")
+        return
     
     books = get_book_list_for_user(ctx)
     if books is None:
@@ -1894,8 +1944,7 @@ async def commands(ctx):
         "*list_books [page] - List your books alphabetically with interactive pagination\n"
         "*search_book <title> - Search your books by title\n"
         "*book_info <title> - Get full info about a book\n"
-        "*summary <title> - Get the full summary of a book\n"
-        "*full_info <title> - Get ALL info including full summary\n\n"
+        "*summary <title> - Get the full summary of a book\n\n"
         
         "**✏️ Adding & Editing Books**\n"
         "*add_book Title | Author | Pages | Series - Add a book\n"
