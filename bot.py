@@ -27,11 +27,11 @@ USERE = int(os.getenv("USERE"))
 
 # Map user IDs to their JSON files
 USER_BOOK_FILES = {
-    USERA: "userA_books_enriched.json",
-    USERB: "userB_books_enriched.json",
-    USERC: "userC_books_enriched.json",
-    USERD: "userD_books_enriched.json",
-    USERE: "userE_books_enriched.json",
+    USERA: "./userA_books_enriched.json",
+    USERB: "./userB_books_enriched.json",
+    USERC: "./userC_books_enriched.json",
+    USERD: "./userD_books_enriched.json",
+    USERE: "./userE_books_enriched.json",
 }
 
 # Cache for user books
@@ -278,13 +278,16 @@ async def on_ready():
     print(f"{bot.user} is ready 🧸")
     
     # Load books for all users
-    for user_id in USER_BOOK_FILES:
-        books = get_user_books(user_id)
-        user = bot.get_user(user_id)
-        if user:
-            print(f"🧸📚 Loaded {len(books)} books for {user.display_name}")
-        else:
-            print(f"🧸📚 Loaded {len(books)} books for user {user_id}")
+    try:
+        for user_id in USER_BOOK_FILES:
+            books = get_user_books(user_id)
+            user = bot.get_user(user_id)
+            if user:
+                print(f"🧸📚 Loaded {len(books)} books for {user.display_name}")
+            else:
+                print(f"🧸📚 Loaded {len(books)} books for user {user_id}")
+    except Exception as e:
+        print(f"Error loading books: {e}")
     
     bot.loop.create_task(birthday_check())
 
