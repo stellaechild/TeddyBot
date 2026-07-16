@@ -196,17 +196,18 @@ def get_user_toread_books(user_id):
     to_read_books = [book for book in all_books if book.get('status') == 'to-read']
     return to_read_books
 
-def get_user_books_by_status(user_id, status=None):
-    """Get books for a specific user filtered by status"""
-    if status is not None and status.lower() not in ['to-read', 'reading', 'read']:
-        return []  # Invalid status
-    
+def get_user_status(user_id):
+    """Get the status of a specific user"""
     books = get_user_books(user_id)
-    if status is None:
-        return books
+    if not books:
+        return "No books found."
     
-    # Get all books with the specified status (case insensitive)
-    return [b for b in books if b.get('status', '').lower() == status.lower()]
+    status_counts = {}
+    for book in books:
+        status = book.get('status', 'Unknown').lower()
+        status_counts[status] = status_counts.get(status, 0) + 1
+    
+    return status_counts
 
 def save_user_books(user_id, books):
     """Save books for a specific user to their JSON file"""
@@ -754,36 +755,76 @@ async def list_books(ctx, status: str = None, page: int = 1):
     message = await ctx.send(embed=embed, view=view)
     view.message = message
 
-@bot.command(aliases=['find_status', 'lookup_status'])
-async def search_status(ctx, status: str):
-    """Search for books by status in YOUR list"""
+
+@bot.command()
+async def search_status(ctx, status: str, page: int = 1):
+    """List all books with a specific status.
+    Usage: *search_status <status> [page]
+    Status options: to-read, read, currently-reading
+    Example: *search_status to-read 1"""
+    
+    if status is None or status.strip() == "":
+        await ctx.send("🧸📚 Please specify a status: `to-read`, `read`, or `currently-reading`.\nExample: `*search_status to-read` 🧸")
+        return
+    
     books = get_book_list_for_user(ctx)
     if books is None:
         await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
         return
     
-    # Filter by status
-    filtered_books = [b for b in books if b.get('status', '').lower() == status.lower()]
+    if not books:
+        await ctx.send("🧸📚 Button can't find any books in your list! 💔")
+        return
+    
+    status = status.lower().strip()
+    
+    # Validate status
+    valid_statuses = ['to-read', 'read', 'currently-reading']
+    if status not in valid_statuses:
+        await ctx.send(f"🧸📚 Invalid status: `{status}`. Please use: `to-read`, `read`, or `currently-reading` 🧸")
+        return
+    
+    # Filter books by status
+    filtered_books = [b for b in books if b.get('status', '').lower() == status]
     
     if not filtered_books:
-        await ctx.send(f"🧸📚 Button couldn't find any books with status '{status}' in your list. 💔")
+        status_emoji = "📖" if status == 'to-read' else "✅" if status == 'read' else "🔄"
+        await ctx.send(f"🧸📚 You don't have any {status_emoji} books with status '{status}'! 💔")
         return
     
     # Sort alphabetically by title
     sorted_books = sorted(filtered_books, key=lambda x: x['title'].lower())
     
+    # Pagination: 10 books per page
+    items_per_page = 10
+    total_pages = (len(sorted_books) + items_per_page - 1) // items_per_page
+    
+    if page < 1 or page > total_pages:
+        await ctx.send(f"🧸📚 That page doesn't exist! There are {total_pages} pages. 💔")
+        return
+    
+    start = (page - 1) * items_per_page
+    end = min(start + items_per_page, len(sorted_books))
+    
     # Create the list
+    status_emoji = "📖" if status == 'to-read' else "✅" if status == 'read' else "🔄"
     book_list = []
-    for i, book in enumerate(sorted_books[:10], start=1):
-        book_list.append(format_book_list(book, i))
+    for i, book in enumerate(sorted_books[start:end], start=start+1):
+        book_list.append(f"`{i}.` {status_emoji} **{book['title']}** — *{book['author']}*")
     
     embed = discord.Embed(
-        title=f"🔍 🧸Found {len(filtered_books)} books with status '{status}'",
-        description="\n".join(book_list),
+        title=f"🧸📚 {ctx.author.display_name}'s {status.title()} Books (Page {page}/{total_pages})",
+        description="\n".join(book_list) if book_list else "No books on this page.",
         color=discord.Color.blue()
     )
-    embed.set_footer(text="Use *book_info 'exact title' for full details")
-    await ctx.send(embed=embed)
+    embed.set_footer(text=f"Total: {len(sorted_books)} books • Use *search_status {status} <page> to see more")
+    
+    # Create the pagination view
+    view = SimpleBookPaginationView(ctx, sorted_books, page, items_per_page)
+    
+    # Send the message and store it in the view
+    message = await ctx.send(embed=embed, view=view)
+    view.message = message
 
 @bot.command(aliases=['find_genre', 'lookup_genre'])
 async def search_genre(ctx, *, genre: str):
@@ -848,37 +889,145 @@ async def search_mood(ctx, *, mood: str):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def list_status(ctx):
-    """List all books in YOUR list grouped by status"""
-    books = get_book_list_for_user(ctx)
-    if books is None:
-        await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
+async def list_status(ctx, user: discord.Member = None):
+    """List all statuses in your library with book counts.
+    Usage: *list_statuses [@user]
+    If no user is mentioned, shows your own statuses."""
+    
+    # If no user mentioned, use the command author
+    if user is None:
+        user = ctx.author
+    
+    # Check if the user has a book list
+    if user.id not in USER_BOOK_FILES:
+        if user == ctx.author:
+            await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
+        else:
+            await ctx.send(f"🧸📚 {user.display_name} doesn't have a book list set up yet! 💔")
         return
     
-    # Group books by status
-    status_groups = {
-        'to-read': [],
-        'currently-reading': [],
-        'read': [],
-        'other': []
+    books = get_user_books(user.id)
+    
+    if not books:
+        await ctx.send(f"🧸📚 {user.display_name}'s book list is empty! 💔")
+        return
+    
+    # Count books by status
+    status_counts = {}
+    status_emojis = {
+        'to-read': '📖',
+        'read': '✅',
+        'currently-reading': '🔄'
     }
     
     for book in books:
-        status = book.get('status', '').lower()
-        if status in status_groups:
-            status_groups[status].append(book)
-        else:
-            status_groups['other'].append(book)
+        status = book.get('status', 'Unknown').lower()
+        if status not in status_counts:
+            status_counts[status] = 0
+        status_counts[status] += 1
     
+    # Sort statuses
+    sorted_statuses = sorted(status_counts.items(), key=lambda x: x[1], reverse=True)
+    
+    # Create embed
     embed = discord.Embed(
-        title=f"🧸📚 {ctx.author.display_name}'s Books by Status",
+        title=f"📚 {user.display_name}'s Library Statuses",
         color=discord.Color.blue()
     )
     
-    for status, group_books in status_groups.items():
-        if group_books:
-            book_list = [format_book_list(b, i+1) for i, b in enumerate(group_books[:10])]
-            embed.add_field(name=f"{status.capitalize()} ({len(group_books)})", value="\n".join(book_list), inline=False)
+    # Add status breakdown
+    status_text = ""
+    total_books = len(books)
+    
+    for status, count in sorted_statuses:
+        emoji = status_emojis.get(status, '📒')
+        percentage = (count / total_books * 100) if total_books > 0 else 0
+        status_text += f"{emoji} **{status.title()}**: {count} books ({percentage:.1f}%)\n"
+    
+    if status_text:
+        embed.add_field(name="📊 Status Breakdown", value=status_text, inline=False)
+    else:
+        embed.add_field(name="📊 Status Breakdown", value="No statuses found.", inline=False)
+    
+    # Add quick summary
+    to_read = status_counts.get('to-read', 0)
+    read = status_counts.get('read', 0)
+    currently_reading = status_counts.get('currently-reading', 0)
+    
+    embed.add_field(
+        name="📋 Quick Summary",
+        value=f"📖 To-Read: {to_read}\n✅ Read: {read}\n🔄 Currently Reading: {currently_reading}\n📒 Other: {total_books - to_read - read - currently_reading}",
+        inline=False
+    )
+    
+    embed.set_footer(text=f"Total books: {total_books}")
+    
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def status_stats(ctx, user: discord.Member = None):
+    """Get detailed statistics about book statuses.
+    Usage: *status_stats [@user]"""
+    
+    # If no user mentioned, use the command author
+    if user is None:
+        user = ctx.author
+    
+    # Check if the user has a book list
+    if user.id not in USER_BOOK_FILES:
+        if user == ctx.author:
+            await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
+        else:
+            await ctx.send(f"🧸📚 {user.display_name} doesn't have a book list set up yet! 💔")
+        return
+    
+    books = get_user_books(user.id)
+    
+    if not books:
+        await ctx.send(f"🧸📚 {user.display_name}'s book list is empty! 💔")
+        return
+    
+    # Count books by status
+    status_counts = {}
+    for book in books:
+        status = book.get('status', 'Unknown').lower()
+        if status not in status_counts:
+            status_counts[status] = 0
+        status_counts[status] += 1
+    
+    total_books = len(books)
+    to_read = status_counts.get('to-read', 0)
+    read = status_counts.get('read', 0)
+    currently_reading = status_counts.get('currently-reading', 0)
+    other = total_books - to_read - read - currently_reading
+    
+    # Create embed with detailed stats
+    embed = discord.Embed(
+        title=f"📊 {user.display_name}'s Status Statistics",
+        color=discord.Color.gold()
+    )
+    
+    # Add main stats
+    embed.add_field(name="📚 Total Books", value=str(total_books), inline=True)
+    embed.add_field(name="📖 To-Read", value=f"{to_read} ({to_read/total_books*100:.1f}%)", inline=True)
+    embed.add_field(name="✅ Read", value=f"{read} ({read/total_books*100:.1f}%)", inline=True)
+    embed.add_field(name="🔄 Currently Reading", value=f"{currently_reading} ({currently_reading/total_books*100:.1f}%)", inline=True)
+    
+    if other > 0:
+        embed.add_field(name="📒 Other", value=f"{other} ({other/total_books*100:.1f}%)", inline=True)
+    
+    # Add reading progress
+    if total_books > 0:
+        read_percentage = (read / total_books) * 100
+        unread_percentage = ((to_read + currently_reading) / total_books) * 100
+        
+        embed.add_field(
+            name="📈 Reading Progress",
+            value=f"✅ Read: {read_percentage:.1f}%\n📖 Unread: {unread_percentage:.1f}%",
+            inline=False
+        )
+    
+    embed.set_footer(text=f"🧸 Button's Library Analytics")
     
     await ctx.send(embed=embed)
 
@@ -2160,8 +2309,9 @@ async def commands(ctx):
         "\*mybooks - Check your library stats (total, to-read, read, currently-reading)\n"
         "\*recommend [status] - Get a random book from your list (optional: to-read, read, currently-reading)\n"
         "\*list_books [status] [page] - List your books with optional status filter\n"
-        "\*list_status - List all books grouped by status\n"
+        "\*list_status - List your status\n"
         "\*search_book <title> - Search your books by title\n"
+        "\*search_status <status> [page] - Search your books by status\n"
         "\*search_genre <genre> - Search your books by genre\n"
         "\*search_mood <mood> - Search your books by mood\n"
         "\*book_info <title> - Get full info about a book\n"
@@ -2189,6 +2339,7 @@ async def commands(ctx):
         "\n\n**📊 Library Statistics**\n"
         "\*library_stats - Get stats for your library\n"
         "\*length_stats - Get length statistics\n"
+        "\*status_stats [@user] - Get detailed statistics about book statuses\n"
         "\*list_genres - List all genres\n"
         "\*list_moods - List all moods\n"
         "\*list_length <short|medium|long> - List books by length\n\n"
