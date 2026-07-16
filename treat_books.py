@@ -34,7 +34,7 @@ def classify_genre_and_mood(tags, title, author, description):
     # Common genre keywords
     genre_keywords = {
         'fantasy': ['fantasy', 'magic', 'dragon', 'sword', 'wizard', 'sorcerer', 'mythical', 'fairy tale', 'folklore'],
-        'classic': ['classic', 'literature', 'timeless', 'masterpiece', 'canonical'],
+        'classic': ['classic', 'canonical'],
         'mystery': ['mystery', 'detective', 'crime', 'suspense', 'thriller', 'whodunit', 'investigation', 'murder'],
         'science fiction': ['sci-fi', 'science fiction', 'space', 'alien', 'dystopian', 'futuristic', 'cyberpunk', 'robot', 'ai'],
         'romance': ['romance', 'love', 'relationship', 'couple', 'dating', 'romantic'],
