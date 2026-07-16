@@ -34,10 +34,12 @@ def classify_genre_and_mood(tags, title, author, description):
     # Common genre keywords
     genre_keywords = {
         'fantasy': ['fantasy', 'magic', 'dragon', 'sword', 'wizard', 'sorcerer', 'mythical', 'fairy tale', 'folklore'],
-        'science fiction': ['sci-fi', 'science fiction', 'space', 'alien', 'dystopian', 'futuristic', 'cyberpunk', 'robot', 'ai'],
+        'classic': ['classic', 'literature', 'timeless', 'masterpiece', 'canonical'],
         'mystery': ['mystery', 'detective', 'crime', 'suspense', 'thriller', 'whodunit', 'investigation', 'murder'],
+        'science fiction': ['sci-fi', 'science fiction', 'space', 'alien', 'dystopian', 'futuristic', 'cyberpunk', 'robot', 'ai'],
         'romance': ['romance', 'love', 'relationship', 'couple', 'dating', 'romantic'],
-        'historical fiction': ['historical', 'period', 'vintage', '19th century', 'victorian', 'medieval'],
+        'romantic comedy': ['romantic comedy', 'romantic', 'comedy', 'funny', 'heartwarming'],
+        'historical fiction': ['historical', 'period', 'vintage', 'century', 'victorian', 'medieval'],
         'contemporary': ['contemporary', 'modern', 'current', 'present day'],
         'literary fiction': ['literary', 'literature', 'classic', 'award-winning', 'booker'],
         'horror': ['horror', 'scary', 'haunting', 'macabre', 'gothic', 'paranormal'],
@@ -50,13 +52,17 @@ def classify_genre_and_mood(tags, title, author, description):
         'non-fiction': ['non-fiction', 'biography', 'memoir', 'history', 'science', 'philosophy'],
         'magical realism': ['magical realism', 'magical', 'realism', 'surreal'],
         'romantasy': ['romantasy', 'fantasy romance'],
-        'cozy': ['cozy', 'comforting', 'gentle', 'heartwarming'],
-        'dark': ['dark', 'grim', 'bleak', 'gritty']
+        'manga': ['manga', 'graphic novel', 'comic', 'anime'],
+        'poetry': ['poetry', 'poem', 'verse', 'lyric'],
+        'memoir': ['memoir', 'autobiography', 'personal story', 'life story'],
+        'biography': ['biography', 'life story', 'profile', 'historical figure'],
+        'social commentary': ['social commentary', 'political', 'cultural', 'society', 'activism'],
+        'short stories': ['short stories', 'anthology', 'collection', 'flash fiction']
     }
     
     # Common mood keywords
     mood_keywords = {
-        'dark': ['dark', 'grim', 'bleak', 'macabre', 'gothic'],
+        'dark': ['dark', 'grim', 'bleak', 'macabre', 'gothic', 'gritty'],
         'emotional': ['emotional', 'heartbreaking', 'poignant', 'tearjerker', 'moving'],
         'hopeful': ['hopeful', 'inspiring', 'uplifting', 'optimistic'],
         'suspenseful': ['suspenseful', 'tension', 'edge of your seat', 'thrilling'],
@@ -67,7 +73,18 @@ def classify_genre_and_mood(tags, title, author, description):
         'mysterious': ['mysterious', 'enigmatic', 'puzzling'],
         'heartwarming': ['heartwarming', 'wholesome', 'feel-good', 'comforting'],
         'challenging': ['challenging', 'controversial', 'difficult', 'heavy'],
-        'nostalgic': ['nostalgic', 'bittersweet', 'sentimental']
+        'nostalgic': ['nostalgic', 'bittersweet', 'sentimental'],
+        'cozy': ['cozy', 'comforting', 'gentle', 'heartwarming'],
+        'dark comedy': ['dark comedy', 'satirical', 'black humor'],
+        'tragic': ['tragic', 'sad', 'heartbreaking', 'melancholy'],
+        'reflective': ['reflective', 'introspective', 'thoughtful', 'philosophical'],
+        'uplifting': ['uplifting', 'inspiring', 'hopeful', 'motivational'],
+        'tense': ['tense', 'suspenseful', 'thrilling', 'edge of your seat'],
+        'light-hearted': ['light-hearted', 'funny', 'humorous', 'cheerful'],
+        'informative': ['informative', 'educational', 'insightful', 'enlightening'],
+        'fast-paced': ['fast-paced', 'action-packed', 'thrilling', 'exciting'],
+        'slow-paced': ['slow-paced', 'reflective', 'introspective', 'thoughtful'],
+        'medium-paced': ['medium-paced', 'balanced', 'steady', 'moderate']
     }
     
     # Combine all text for analysis

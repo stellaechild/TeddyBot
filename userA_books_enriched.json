@@ -7,6 +7,7 @@
     "tags": [
       "friends",
       "genre: adventure",
+      "genre: classic",
       "genre: new adult",
       "genre: romance",
       "genre: science fiction",
@@ -65,6 +66,7 @@
     "author": "Arundhati Roy",
     "pages": "321",
     "tags": [
+      "genre: classic",
       "genre: fantasy",
       "genre: literary fiction",
       "genre: romance",
@@ -162,6 +164,7 @@
     "pages": "771",
     "tags": [
       "genre: adventure",
+      "genre: classic",
       "genre: drama",
       "genre: literary fiction",
       "genre: new adult",
@@ -184,6 +187,7 @@
       "compendium",
       "emily",
       "english literature",
+      "genre: classic",
       "genre: literary fiction",
       "lost",
       "tales",
@@ -295,6 +299,7 @@
     "author": "Agatha Christie",
     "pages": "264",
     "tags": [
+      "genre: classic",
       "genre: literary fiction",
       "genre: mystery",
       "genre: new adult",
@@ -382,11 +387,11 @@
     "tags": [
       "dark",
       "genre: adventure",
-      "genre: dark",
       "genre: horror",
       "genre: new adult",
       "genre: romance",
       "genre: science fiction",
+      "genre: social commentary",
       "genre: young adult",
       "mood: dark",
       "mood: romantic",
@@ -423,6 +428,7 @@
     "tags": [
       "(the",
       "american literature",
+      "genre: classic",
       "genre: literary fiction",
       "gilded",
       "serpents",
@@ -442,6 +448,7 @@
     "tags": [
       "(little",
       "genre: adventure",
+      "genre: classic",
       "genre: literary fiction",
       "genre: new adult",
       "genre: romance",
@@ -562,10 +569,12 @@
       "(sherlock",
       "adventures",
       "genre: adventure",
+      "genre: memoir",
       "genre: mystery",
       "genre: new adult",
       "genre: non-fiction",
       "genre: science fiction",
+      "genre: short stories",
       "genre: thriller",
       "holmes",
       "holmes,",
@@ -637,6 +646,7 @@
     "pages": "288",
     "tags": [
       "american literature",
+      "genre: classic",
       "genre: literary fiction",
       "silent",
       "these",
@@ -685,7 +695,6 @@
       "(the",
       "baptism",
       "fire",
-      "genre: dark",
       "genre: fantasy",
       "genre: science fiction",
       "heiresses",
@@ -778,6 +787,7 @@
     "tags": [
       "(red",
       "genre: science fiction",
+      "genre: social commentary",
       "genre: young adult",
       "gold",
       "iron",
@@ -798,7 +808,6 @@
       "(red",
       "dark",
       "genre: adventure",
-      "genre: dark",
       "genre: non-fiction",
       "genre: science fiction",
       "mood: dark",
@@ -909,8 +918,10 @@
       "genre: adventure",
       "genre: comedy",
       "genre: romance",
+      "genre: romantic comedy",
       "genre: science fiction",
       "mood: humorous",
+      "mood: light-hearted",
       "mood: romantic",
       "story",
       "to-read"
@@ -993,6 +1004,7 @@
     "tags": [
       "(the",
       "genre: adventure",
+      "genre: classic",
       "genre: new adult",
       "genre: science fiction",
       "king",
@@ -1013,15 +1025,17 @@
     "tags": [
       "(the",
       "genre: adventure",
+      "genre: classic",
       "genre: contemporary",
-      "genre: dark",
       "genre: fantasy",
       "genre: literary fiction",
+      "genre: manga",
       "genre: new adult",
       "genre: romance",
       "genre: science fiction",
       "lord",
       "mood: dark",
+      "mood: light-hearted",
       "mood: mysterious",
       "rings,",
       "to-read",
@@ -1062,6 +1076,7 @@
       "genre: young adult",
       "june",
       "mood: humorous",
+      "mood: light-hearted",
       "mood: mysterious",
       "mood: romantic",
       "mood: thought-provoking",
@@ -1080,9 +1095,9 @@
     "tags": [
       "(the",
       "country",
-      "genre: cozy",
       "gentlemen",
       "lives",
+      "mood: cozy",
       "secret",
       "to-read"
     ],
@@ -1117,10 +1132,11 @@
     "pages": "86",
     "tags": [
       "death",
-      "genre: dark",
+      "genre: social commentary",
       "ilych",
       "ivan",
       "mood: dark",
+      "mood: dark comedy",
       "to-read"
     ],
     "summary": "This satirical novella tells the story of the life and early death of a high court judge. Ivan Ilych is proud of his achievements and his status in society, despite his poor relations with his wife which renders his home life bleak and joyless. When he becomes hopelessly ill he begins to realize that he has not after all lived the good life he had supposed he was enjoying.",
@@ -1148,6 +1164,7 @@
     "pages": "303",
     "tags": [
       "genre: adventure",
+      "genre: classic",
       "genre: contemporary",
       "genre: literary fiction",
       "genre: new adult",
@@ -1157,6 +1174,7 @@
       "mood: hopeful",
       "mood: mysterious",
       "mood: romantic",
+      "mood: uplifting",
       "to-read"
     ],
     "summary": "\"From her place in the store that sells artificial friends, Klara--an artificial friend with outstanding observational qualities--watches carefully the behavior of those who come in to browse, and of those who pass in the street outside. She remains hopeful a customer will soon choose her, but when the possibility emerges that her circumstances may change forever, Klara is warned not to invest too much in the promises of humans. In this luminous tale, Klara and the Sun, Nobel Prize winner Kazuo Ishiguro looks at our rapidly changing modern world through the eyes of an unforgettable narrator to explore a fundamental question: what does it mean to love?\"--\n\nFrom the best-selling author of Never Let Me Go and The Remains of the Day, a stunning new novel - his first since winning the Nobel Prize in Literature - about the wondrous, mysterious nature of the human heart. From her place in the store, Klara, an Artificial Friend with outstanding observational qualities, watches carefully the behavior of those who come in to browse, and of those who pass in the street outside. She remains hopeful a customer will soon choose her, but when the possibility emerges that her circumstances may change forever, Klara is warned not to invest too much in the promises of humans. In Klara and the Sun, Kazuo Ishiguro looks at our rapidly changing modern world through the eyes of an unforgettable narrator to explore a fundamental question: what does it mean to love? --",
@@ -1169,12 +1187,14 @@
     "author": "Kazuo Ishiguro",
     "pages": "288",
     "tags": [
+      "genre: classic",
       "genre: drama",
       "genre: literary fiction",
       "genre: mystery",
       "genre: new adult",
       "genre: science fiction",
       "mood: emotional",
+      "mood: tragic",
       "never",
       "to-read"
     ],
@@ -1190,16 +1210,18 @@
     "tags": [
       "darkness",
       "genre: adventure",
-      "genre: dark",
       "genre: fantasy",
       "genre: new adult",
       "genre: non-fiction",
+      "genre: poetry",
       "genre: romance",
       "genre: science fiction",
       "hand",
       "left",
       "mood: dark",
+      "mood: fast-paced",
       "mood: suspenseful",
+      "mood: tense",
       "mood: thought-provoking",
       "to-read"
     ],
@@ -1245,7 +1267,6 @@
       "fellowship",
       "genre: adventure",
       "genre: contemporary",
-      "genre: dark",
       "genre: fantasy",
       "genre: new adult",
       "genre: science fiction",
@@ -1267,6 +1288,7 @@
     "tags": [
       "carrie",
       "classics",
+      "genre: classic",
       "genre: contemporary",
       "genre: horror",
       "genre: literary fiction",
@@ -1290,8 +1312,10 @@
     "pages": "142",
     "tags": [
       "breakfast",
+      "genre: classic",
       "genre: literary fiction",
       "genre: new adult",
+      "genre: short stories",
       "rated: 3.0/5",
       "read",
       "stories",
@@ -1325,6 +1349,7 @@
     "tags": [
       "american literature",
       "emperor",
+      "genre: classic",
       "genre: literary fiction",
       "gladness",
       "to-read"
@@ -1343,7 +1368,9 @@
       "adventures",
       "finn",
       "genre: adventure",
+      "genre: classic",
       "genre: comedy",
+      "genre: historical fiction",
       "genre: literary fiction",
       "genre: new adult",
       "genre: science fiction",
@@ -1364,6 +1391,7 @@
       "aristotle",
       "dante",
       "discover",
+      "genre: poetry",
       "rated: 4.0/5",
       "read",
       "secrets",
@@ -1413,6 +1441,7 @@
       "genre: comedy",
       "genre: new adult",
       "genre: romance",
+      "genre: romantic comedy",
       "mood: challenging",
       "rated: 5.0/5",
       "read"
@@ -1430,7 +1459,9 @@
       "genre: drama",
       "genre: new adult",
       "genre: young adult",
+      "mood: fast-paced",
       "mood: suspenseful",
+      "mood: tense",
       "rated: 4.0/5",
       "read",
       "woods"
@@ -1456,6 +1487,7 @@
       "gorgeous",
       "mood: emotional",
       "mood: romantic",
+      "mood: tragic",
       "rated: 4.0/5",
       "read",
       "we're"
@@ -1504,8 +1536,8 @@
     "tags": [
       "east",
       "eden",
+      "genre: classic",
       "genre: contemporary",
-      "genre: dark",
       "genre: mystery",
       "genre: new adult",
       "genre: romance",
@@ -1543,6 +1575,8 @@
     "tags": [
       "1982",
       "born",
+      "genre: biography",
+      "genre: memoir",
       "genre: new adult",
       "genre: science fiction",
       "jiyoung,",
@@ -1635,6 +1669,7 @@
     "pages": "303",
     "tags": [
       "american literature",
+      "genre: classic",
       "genre: literary fiction",
       "james",
       "to-read"
@@ -1691,6 +1726,7 @@
       "crows,",
       "favorites",
       "genre: fantasy",
+      "genre: historical fiction",
       "kingdom",
       "rated: 5.0/5",
       "read",
@@ -1724,7 +1760,6 @@
     "tags": [
       "(shadow",
       "bone,",
-      "genre: dark",
       "genre: new adult",
       "mood: dark",
       "rated: 4.0/5",
@@ -1762,7 +1797,6 @@
     "pages": "272",
     "tags": [
       "genre: adventure",
-      "genre: dark",
       "genre: thriller",
       "genre: young adult",
       "mood: dark",
@@ -1783,7 +1817,6 @@
       "(shadow",
       "bone",
       "bone,",
-      "genre: dark",
       "genre: fantasy",
       "genre: new adult",
       "genre: science fiction",
@@ -1823,6 +1856,7 @@
       "(the",
       "genre: new adult",
       "last",
+      "mood: tragic",
       "rated: 4.0/5",
       "read",
       "wish",
@@ -1838,7 +1872,6 @@
     "author": "Jennifer Hillier",
     "pages": "311",
     "tags": [
-      "genre: dark",
       "genre: mystery",
       "genre: new adult",
       "genre: romance",
@@ -2002,6 +2035,7 @@
     "tags": [
       "dead",
       "genre: romance",
+      "genre: romantic comedy",
       "mood: romantic",
       "romantics",
       "to-read"
@@ -2021,7 +2055,9 @@
       "atlas,",
       "genre: fantasy",
       "genre: new adult",
+      "genre: poetry",
       "genre: science fiction",
+      "genre: social commentary",
       "mood: mysterious",
       "to-read"
     ],
@@ -2035,20 +2071,21 @@
     "author": "William Shakespeare",
     "pages": "289",
     "tags": [
+      "drama",
       "education / teaching",
       "english literature: shakespeare texts",
+      "for national curriculum key stage 4 & gcse",
+      "genre: classic",
       "genre: drama",
       "genre: literary fiction",
       "genre: new adult",
       "genre: young adult",
       "hamlet",
       "hamlet (legendary character)",
-      "kings and rulers",
       "literary criticism / shakespeare",
-      "plays / drama",
-      "rated: 4.0/5",
-      "shakespeare",
-      "teaching methods & materials - arts & humanities"
+      "read",
+      "teaching methods & materials - arts & humanities",
+      "young adult drama, english"
     ],
     "summary": "'Hamlet' by William Shakespeare.",
     "isbn": "9780521618748",
@@ -2077,6 +2114,7 @@
     "tags": [
       "feminists",
       "genre: adventure",
+      "genre: historical fiction",
       "genre: literary fiction",
       "genre: new adult",
       "rated: 5.0/5",
@@ -2225,7 +2263,6 @@
       "(throne",
       "assassin's",
       "blade",
-      "genre: dark",
       "genre: new adult",
       "glass,",
       "mood: dark",
@@ -2260,6 +2297,7 @@
     "pages": "227",
     "tags": [
       "(the",
+      "genre: classic",
       "genre: contemporary",
       "genre: literary fiction",
       "genre: new adult",
@@ -2396,6 +2434,7 @@
     "pages": "320",
     "tags": [
       "english literature",
+      "genre: classic",
       "genre: horror",
       "genre: literary fiction",
       "gothic",
@@ -2413,6 +2452,7 @@
     "author": "James Baldwin",
     "pages": "178",
     "tags": [
+      "genre: classic",
       "genre: literary fiction",
       "genre: new adult",
       "genre: romance",
@@ -2460,6 +2500,7 @@
       "genre: adventure",
       "genre: new adult",
       "genre: science fiction",
+      "mood: tragic",
       "rated: 1.0/5",
       "read"
     ],
@@ -2492,6 +2533,7 @@
     "pages": "336",
     "tags": [
       "genre: new adult",
+      "genre: social commentary",
       "irregular",
       "rated: 3.0/5",
       "read",
@@ -2530,6 +2572,7 @@
     "author": "Gregory Maguire",
     "pages": "406",
     "tags": [
+      "genre: classic",
       "genre: fantasy",
       "genre: literary fiction",
       "genre: new adult",
@@ -2588,7 +2631,6 @@
     "pages": "388",
     "tags": [
       "(the",
-      "genre: dark",
       "genre: new adult",
       "graduate",
       "last",
@@ -2673,6 +2715,7 @@
       "(the",
       "american literature",
       "charm",
+      "genre: classic",
       "genre: literary fiction",
       "offensive",
       "offensive,",
@@ -2784,10 +2827,13 @@
     "pages": "337",
     "tags": [
       "called",
-      "genre: cozy",
+      "genre: manga",
       "genre: romance",
+      "genre: romantic comedy",
       "genre: science fiction",
+      "mood: cozy",
       "mood: heartwarming",
+      "mood: tragic",
       "rated: 5.0/5",
       "read"
     ],
@@ -2905,6 +2951,7 @@
     "tags": [
       "american literature",
       "fours",
+      "genre: classic",
       "genre: literary fiction",
       "to-read"
     ],
@@ -2926,6 +2973,7 @@
       "genre: new adult",
       "genre: romance",
       "genre: science fiction",
+      "genre: social commentary",
       "genre: young adult",
       "mood: romantic",
       "to-read"
@@ -3101,6 +3149,7 @@
       "encyclopaedia",
       "english literature",
       "faeries",
+      "genre: classic",
       "genre: literary fiction",
       "rated: 4.0/5",
       "read",
@@ -3117,6 +3166,7 @@
     "pages": "389",
     "tags": [
       "evelyn",
+      "genre: biography",
       "genre: drama",
       "genre: new adult",
       "genre: non-fiction",
@@ -3124,6 +3174,7 @@
       "hugo",
       "husbands",
       "mood: romantic",
+      "mood: tragic",
       "rated: 4.0/5",
       "read",
       "seven"
@@ -3140,7 +3191,6 @@
     "tags": [
       "complete",
       "fairy",
-      "genre: dark",
       "genre: fantasy",
       "genre: new adult",
       "genre: science fiction",
@@ -3211,7 +3261,7 @@
     "pages": "288",
     "tags": [
       "bell",
-      "genre: dark",
+      "genre: classic",
       "genre: horror",
       "genre: literary fiction",
       "genre: new adult",
@@ -3230,10 +3280,12 @@
     "pages": "249",
     "tags": [
       "fahrenheit",
+      "genre: classic",
       "genre: historical fiction",
       "genre: literary fiction",
       "genre: new adult",
       "genre: science fiction",
+      "genre: social commentary",
       "to-read"
     ],
     "summary": "Fahrenheit 451 is a 1953 dystopian novel by American writer Ray Bradbury. Often regarded as one of his best works, the novel presents a future American society where books are outlawed and \"firemen\" burn any that are found. The book's tagline explains the title as \"'the temperature at which book paper catches fire, and burns\": the autoignition temperature of paper. The lead character, Guy Montag, is a fireman who becomes disillusioned with his role of censoring literature and destroying knowledge, eventually quitting his job and committing himself to the preservation of literary and cultural writings.\r\n\r\nThe novel has been the subject of interpretations focusing on the historical role of book burning in suppressing dissenting ideas for change. In a 1956 radio interview, Bradbury said that he wrote Fahrenheit 451 because of his concerns at the time (during the McCarthy era) about the threat of book burning in the United States. In later years, he described the book as a commentary on how mass media reduces interest in reading literature.\r\n\r\nIn 1954, Fahrenheit 451 won the American Academy of Arts and Letters Award in Literature and the Commonwealth Club of California Gold Medal. It later won the Prometheus \"Hall of Fame\" Award in 1984 and a \"Retro\" Hugo Award, one of a limited number of Best Novel Retro Hugos ever given, in 2004. Bradbury was honored with a Spoken Word Grammy nomination for his 1976 audiobook version.\r\n\r\n---\r\n\r\nAlso contained in:\r\n\r\n- [451° по Фаренгейту: Рассказы](https://openlibrary.org/works/OL17811384W/Fahrenheit_451_stories)\r\n- [451° по Фаренгейту: повести и рассказы](https://openlibrary.org/works/OL27741633W)\r\n- [Works](https://openlibrary.org/works/OL28185143W)",
@@ -3316,6 +3368,7 @@
     "author": "William Shakespeare",
     "pages": "319",
     "tags": [
+      "genre: manga",
       "othello",
       "to-read"
     ],
@@ -3331,10 +3384,12 @@
     "tags": [
       "complete",
       "genre: adventure",
+      "genre: memoir",
       "genre: mystery",
       "genre: new adult",
       "genre: non-fiction",
       "genre: science fiction",
+      "genre: short stories",
       "genre: thriller",
       "holmes",
       "sherlock",
@@ -3364,14 +3419,19 @@
     "author": "James Joyce",
     "pages": "783",
     "tags": [
+      "genre: classic",
       "genre: comedy",
       "genre: contemporary",
       "genre: historical fiction",
       "genre: mystery",
+      "genre: poetry",
+      "genre: romantic comedy",
       "genre: science fiction",
       "genre: thriller",
       "mood: humorous",
+      "mood: light-hearted",
       "mood: suspenseful",
+      "mood: tense",
       "read",
       "ulysses"
     ],
@@ -3433,6 +3493,8 @@
     "pages": "263",
     "tags": [
       "genre: adventure",
+      "genre: classic",
+      "genre: historical fiction",
       "genre: horror",
       "genre: literary fiction",
       "genre: mystery",
@@ -3477,6 +3539,7 @@
       "adventures",
       "alice’s",
       "genre: adventure",
+      "genre: classic",
       "genre: fantasy",
       "genre: literary fiction",
       "genre: science fiction",
@@ -3588,7 +3651,9 @@
       "genre: mystery",
       "genre: new adult",
       "genre: young adult",
+      "mood: fast-paced",
       "mood: suspenseful",
+      "mood: tense",
       "to-read",
       "woods"
     ],
@@ -3619,6 +3684,7 @@
     "pages": "390",
     "tags": [
       "american literature",
+      "genre: classic",
       "genre: literary fiction",
       "genre: young adult",
       "to-read",
@@ -3772,7 +3838,6 @@
     "pages": "391",
     "tags": [
       "(hush,",
-      "genre: dark",
       "genre: new adult",
       "genre: romance",
       "hush",
@@ -3814,7 +3879,6 @@
       "(strange",
       "dreamer,",
       "genre: adventure",
-      "genre: dark",
       "genre: romance",
       "genre: science fiction",
       "genre: young adult",
@@ -3874,6 +3938,7 @@
       "genre: new adult",
       "genre: science fiction",
       "genre: young adult",
+      "mood: tense",
       "normal",
       "people",
       "to-read"
@@ -3919,6 +3984,7 @@
     "pages": "372",
     "tags": [
       "families",
+      "genre: classic",
       "genre: drama",
       "genre: literary fiction",
       "genre: new adult",
@@ -3928,6 +3994,7 @@
       "mood: emotional",
       "mood: romantic",
       "mood: thought-provoking",
+      "mood: tragic",
       "splendid",
       "suns",
       "thousand",
@@ -4025,7 +4092,6 @@
       "(stalking",
       "dracula",
       "genre: adventure",
-      "genre: dark",
       "genre: horror",
       "genre: mystery",
       "genre: science fiction",
@@ -4165,6 +4231,7 @@
     "author": "Donna Tartt",
     "pages": "559",
     "tags": [
+      "genre: classic",
       "genre: literary fiction",
       "genre: mystery",
       "genre: new adult",
@@ -4193,23 +4260,6 @@
     ],
     "summary": "'The Picture of Dorian Gray' by Oscar Wilde.",
     "isbn": "9780141439570",
-    "status": "to-read"
-  },
-  {
-    "title": "Emma",
-    "series": null,
-    "author": "Jane Austen",
-    "pages": "474",
-    "tags": [
-      "emma",
-      "genre: comedy",
-      "genre: new adult",
-      "genre: young adult",
-      "mood: humorous",
-      "to-read"
-    ],
-    "summary": "'Emma' by Jane Austen.",
-    "isbn": "9780141192475",
     "status": "to-read"
   },
   {
@@ -4371,7 +4421,6 @@
     "author": "Erin Morgenstern",
     "pages": "498",
     "tags": [
-      "genre: dark",
       "genre: fantasy",
       "genre: new adult",
       "genre: romance",
@@ -4444,6 +4493,7 @@
       "(hundred",
       "fantasy",
       "genre: fantasy",
+      "genre: short stories",
       "genre: young adult",
       "kill",
       "kingdom",
@@ -4543,8 +4593,10 @@
       "ancient, classical & medieval",
       "continental european",
       "general",
+      "genre: classic",
       "genre: historical fiction",
       "genre: literary fiction",
+      "genre: poetry",
       "inferno",
       "italian",
       "italian poetry",
@@ -4565,8 +4617,10 @@
     "tags": [
       "ancient (classical) greek",
       "fragments",
+      "genre: classic",
       "genre: historical fiction",
       "genre: literary fiction",
+      "genre: poetry",
       "not,",
       "poetry",
       "poetry & poets: classical, early & medieval",
@@ -4623,7 +4677,9 @@
       "genre: romance",
       "man-woman relationships",
       "mood: mysterious",
+      "mood: reflective",
       "mood: romantic",
+      "mood: slow-paced",
       "mood: thought-provoking",
       "rated: 1.0/5",
       "read"
@@ -4643,7 +4699,6 @@
       "contemporary",
       "contemporary women",
       "genre: contemporary",
-      "genre: dark",
       "genre: new adult",
       "genre: romance",
       "genre: science fiction",
@@ -4667,7 +4722,6 @@
     "tags": [
       "(the",
       "genre: adventure",
-      "genre: dark",
       "genre: fantasy",
       "genre: new adult",
       "genre: science fiction",
@@ -4690,6 +4744,7 @@
     "pages": "178",
     "tags": [
       "(toilet-bound",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4710,6 +4765,7 @@
     "pages": "168",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4731,6 +4787,7 @@
     "pages": "185",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4752,6 +4809,7 @@
     "pages": "174",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4773,6 +4831,7 @@
     "pages": "167",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4794,6 +4853,7 @@
     "pages": "174",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4815,6 +4875,7 @@
     "pages": "174",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4837,6 +4898,7 @@
     "tags": [
       "(jibaku",
       "favorites",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4858,6 +4920,7 @@
     "pages": "172",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4879,6 +4942,7 @@
     "pages": "170",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4900,6 +4964,7 @@
     "pages": "172",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4922,6 +4987,7 @@
     "tags": [
       "(jibaku",
       "favorites",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4943,6 +5009,7 @@
     "pages": "177",
     "tags": [
       "[jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun",
@@ -4964,6 +5031,7 @@
     "pages": "185",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -4986,6 +5054,7 @@
     "tags": [
       "(jibaku",
       "favorites",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -5008,6 +5077,7 @@
     "tags": [
       "(jibaku",
       "favorites",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -5029,6 +5099,7 @@
     "pages": "192",
     "tags": [
       "(jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun,",
@@ -5050,6 +5121,7 @@
     "pages": "176",
     "tags": [
       "[jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun",
@@ -5071,6 +5143,7 @@
     "pages": "175",
     "tags": [
       "[jibaku",
+      "genre: manga",
       "genre: new adult",
       "genre: science fiction",
       "hanako-kun",
@@ -5315,6 +5388,7 @@
       "katherines",
       "mathematics",
       "mood: humorous",
+      "mood: light-hearted",
       "rated: 1.0/5",
       "read",
       "self-perception",
@@ -5398,6 +5472,7 @@
     "tags": [
       "(divergent,",
       "divergent",
+      "genre: social commentary",
       "genre: young adult",
       "mood: challenging",
       "rated: 3.0/5",
@@ -5417,6 +5492,7 @@
       "collection",
       "divergent",
       "four:",
+      "genre: short stories",
       "rated: 2.0/5",
       "read",
       "story"
