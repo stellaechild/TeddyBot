@@ -754,6 +754,134 @@ async def list_books(ctx, status: str = None, page: int = 1):
     message = await ctx.send(embed=embed, view=view)
     view.message = message
 
+@bot.command(aliases=['find_status', 'lookup_status'])
+async def search_status(ctx, status: str):
+    """Search for books by status in YOUR list"""
+    books = get_book_list_for_user(ctx)
+    if books is None:
+        await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
+        return
+    
+    # Filter by status
+    filtered_books = [b for b in books if b.get('status', '').lower() == status.lower()]
+    
+    if not filtered_books:
+        await ctx.send(f"🧸📚 Button couldn't find any books with status '{status}' in your list. 💔")
+        return
+    
+    # Sort alphabetically by title
+    sorted_books = sorted(filtered_books, key=lambda x: x['title'].lower())
+    
+    # Create the list
+    book_list = []
+    for i, book in enumerate(sorted_books[:10], start=1):
+        book_list.append(format_book_list(book, i))
+    
+    embed = discord.Embed(
+        title=f"🔍 🧸Found {len(filtered_books)} books with status '{status}'",
+        description="\n".join(book_list),
+        color=discord.Color.blue()
+    )
+    embed.set_footer(text="Use *book_info 'exact title' for full details")
+    await ctx.send(embed=embed)
+
+@bot.command(aliases=['find_genre', 'lookup_genre'])
+async def search_genre(ctx, *, genre: str):
+    """Search for books by genre in YOUR list"""
+    books = get_book_list_for_user(ctx)
+    if books is None:
+        await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
+        return
+
+    # Filter by genre
+    filtered_books = [b for b in books if genre.lower() in b.get('genres', [])]
+
+    if not filtered_books:
+        await ctx.send(f"🧸📚 Button couldn't find any books with genre '{genre}' in your list. 💔")
+        return
+
+    # Sort alphabetically by title
+    sorted_books = sorted(filtered_books, key=lambda x: x['title'].lower())
+
+    # Create the list
+    book_list = []
+    for i, book in enumerate(sorted_books[:10], start=1):
+        book_list.append(format_book_list(book, i))
+
+    embed = discord.Embed(
+        title=f"🔍 🧸Found {len(filtered_books)} books with genre '{genre}'",
+        description="\n".join(book_list),
+        color=discord.Color.blue()
+    )
+    embed.set_footer(text="Use *book_info 'exact title' for full details")
+    await ctx.send(embed=embed)
+
+@bot.command(aliases=['find_mood', 'lookup_mood'])
+async def search_mood(ctx, *, mood: str):
+    """Search for books by mood in YOUR list"""
+    books = get_book_list_for_user(ctx)
+    if books is None:
+        await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
+        return
+
+    # Filter by mood
+    filtered_books = [b for b in books if mood.lower() in b.get('moods', [])]
+
+    if not filtered_books:
+        await ctx.send(f"🧸📚 Button couldn't find any books with mood '{mood}' in your list. 💔")
+        return
+
+    # Sort alphabetically by title
+    sorted_books = sorted(filtered_books, key=lambda x: x['title'].lower())
+
+    # Create the list
+    book_list = []
+    for i, book in enumerate(sorted_books[:10], start=1):
+        book_list.append(format_book_list(book, i))
+
+    embed = discord.Embed(
+        title=f"🔍 🧸Found {len(filtered_books)} books with mood '{mood}'",
+        description="\n".join(book_list),
+        color=discord.Color.blue()
+    )
+    embed.set_footer(text="Use *book_info 'exact title' for full details")
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def list_status(ctx):
+    """List all books in YOUR list grouped by status"""
+    books = get_book_list_for_user(ctx)
+    if books is None:
+        await ctx.send("🧸📚 You don't have a book list set up yet! 💔")
+        return
+    
+    # Group books by status
+    status_groups = {
+        'to-read': [],
+        'currently-reading': [],
+        'read': [],
+        'other': []
+    }
+    
+    for book in books:
+        status = book.get('status', '').lower()
+        if status in status_groups:
+            status_groups[status].append(book)
+        else:
+            status_groups['other'].append(book)
+    
+    embed = discord.Embed(
+        title=f"🧸📚 {ctx.author.display_name}'s Books by Status",
+        color=discord.Color.blue()
+    )
+    
+    for status, group_books in status_groups.items():
+        if group_books:
+            book_list = [format_book_list(b, i+1) for i, b in enumerate(group_books[:10])]
+            embed.add_field(name=f"{status.capitalize()} ({len(group_books)})", value="\n".join(book_list), inline=False)
+    
+    await ctx.send(embed=embed)
+
 @bot.command(aliases=['find', 'lookup'])
 async def search_book(ctx, *, query):
     """Search for a book in YOUR list by title"""
@@ -2032,7 +2160,10 @@ async def commands(ctx):
         "\*mybooks - Check your library stats (total, to-read, read, currently-reading)\n"
         "\*recommend [status] - Get a random book from your list (optional: to-read, read, currently-reading)\n"
         "\*list_books [status] [page] - List your books with optional status filter\n"
+        "\*list_status - List all books grouped by status\n"
         "\*search_book <title> - Search your books by title\n"
+        "\*search_genre <genre> - Search your books by genre\n"
+        "\*search_mood <mood> - Search your books by mood\n"
         "\*book_info <title> - Get full info about a book\n"
         "\*summary <title> - Get the full summary of a book\n\n"
         
